@@ -1,9 +1,87 @@
 <!DOCTYPE html>
-<html>
-<head><title>{{ name }}'s Portfolio</title></head>
-<body>
-    <h1>Hi, I'm {{ name }}</h1>
-    <h2>{{ bio }}</h2>
-    <p>My Skills: {{ skills }}</p>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} | Cloud Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom smooth fade-in animation */
+        .fade-in { animation: fadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
+        @keyframes fadeIn { 
+            0% { opacity: 0; transform: translateY(30px); } 
+            100% { opacity: 1; transform: translateY(0); } 
+        }
+        /* Blinking cursor for the typewriter effect */
+        .cursor::after { content: '|'; animation: blink 1s step-start infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-slate-950 text-white font-sans antialiased selection:bg-cyan-500 selection:text-white">
+    
+    <main class="min-h-screen flex flex-col justify-center items-center px-4 relative overflow-hidden">
+        
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+
+        <div class="text-center z-10 max-w-4xl">
+            <p class="fade-in text-cyan-400 font-mono tracking-widest mb-4 uppercase text-sm" style="animation-delay: 0.1s;">
+                System Online // Hello World
+            </p>
+            
+            <h1 class="fade-in text-6xl md:text-8xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-500" style="animation-delay: 0.3s;">
+                I'm {{ name }}
+            </h1>
+            
+            <h2 id="typewriter-container" class="fade-in text-xl md:text-3xl text-slate-300 font-light h-10 mb-12 cursor" style="animation-delay: 0.5s;"></h2>
+
+            <div class="fade-in mt-8" style="animation-delay: 0.7s;">
+                <p class="text-xs text-slate-500 uppercase tracking-[0.3em] mb-6">Core Technologies</p>
+                <div id="skills-container" class="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+                    </div>
+            </div>
+        </div>
+
+        <div class="fade-in absolute bottom-10 animate-bounce text-slate-500" style="animation-delay: 1.5s;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. The Typewriter Animation for the Bio ---
+        const bioText = "{{ bio }}";
+        const typewriterElement = document.getElementById("typewriter-container");
+        let charIndex = 0;
+        
+        function typeWriter() {
+            if (charIndex < bioText.length) {
+                typewriterElement.innerHTML += bioText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 50); // Speed of typing
+            } else {
+                // Remove the blinking cursor when typing is done
+                typewriterElement.classList.remove('cursor');
+            }
+        }
+        
+        // Start typing after the initial CSS fade-in finishes
+        setTimeout(typeWriter, 1200);
+
+
+        // --- 2. Interactive Skill Badges ---
+        // Take the raw comma-separated string from Python and split it into an array
+        const rawSkills = "{{ skills }}";
+        const skillsArray = rawSkills.split(',').map(skill => skill.trim());
+        const container = document.getElementById('skills-container');
+
+        // Create a beautiful glowing badge for each skill
+        skillsArray.forEach(skill => {
+            if(skill !== "") {
+                const badge = document.createElement('span');
+                badge.className = "px-6 py-2 bg-slate-900/80 border border-slate-700 rounded-full text-sm font-medium text-cyan-300 shadow-lg backdrop-blur-md hover:border-cyan-400 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all duration-300 cursor-default";
+                badge.innerText = skill;
+                container.appendChild(badge);
+            }
+        });
+    </script>
 </body>
 </html>
