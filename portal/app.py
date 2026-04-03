@@ -1,13 +1,13 @@
 from fastapi import FastAPI, UploadFile, File
 import requests
 import uuid
-import json
+import os # NEW: Import the OS module
 
 app = FastAPI()
 
-# REPLACE THESE WITH YOUR ACTUAL DETAILS
-GITHUB_TOKEN = "your_personal_access_token_here"
-GITHUB_USER = "your_github_username"
+# SECURE: We tell Python to look for a hidden environment variable
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
+GITHUB_USER = "nikhilkaushik2005"
 GITHUB_REPO = "portfolio-paas"
 
 @app.post("/one-click-deploy")
