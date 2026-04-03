@@ -6,79 +6,109 @@
     <title>PaaS Engine | Deploy Pro Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-900 text-white flex justify-center min-h-screen p-4 py-10">
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-2xl border border-gray-700 my-8">
-        <h1 class="text-3xl font-bold mb-2 text-blue-400">PaaS Engine v2.0</h1>
-        <p class="text-gray-400 mb-6">Deploy a professional, multi-section cloud portfolio.</p>
+    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-3xl border border-gray-700 h-fit">
+        <h1 class="text-3xl font-bold mb-2 text-blue-400">PaaS Engine v3.0</h1>
+        <p class="text-gray-400 mb-6 border-b border-gray-700 pb-4">Dynamic Multi-Project Cloud Deployment.</p>
 
-        <form id="deployForm" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-gray-700 pb-6">
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300">Name</label>
-                    <input type="text" id="name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+        <form id="deployForm" class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-sm text-gray-300 mb-1">Name</label><input type="text" id="name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></div>
+                <div><label class="block text-sm text-gray-300 mb-1">Headline</label><input type="text" id="bio" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></div>
+                <div class="md:col-span-2"><label class="block text-sm text-gray-300 mb-1">Top Skills (Comma separated)</label><input type="text" id="skills" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label class="block text-sm text-gray-300 mb-1">Resume Link (PDF)</label><input type="url" id="resume" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm"></div>
+                <div><label class="block text-sm text-gray-300 mb-1">GitHub URL</label><input type="url" id="github" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm"></div>
+                <div><label class="block text-sm text-gray-300 mb-1">Email Address</label><input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm"></div>
+            </div>
+
+            <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-cyan-400">Projects</h3>
+                    <button type="button" onclick="addProject()" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white">+ Add Project</button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300">Headline</label>
-                    <input type="text" id="bio" placeholder="Future Cloud Architect" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1 text-gray-300">Top Skills (Comma separated)</label>
-                    <input type="text" id="skills" placeholder="AWS, Docker, Vercel, Firebase" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                <div id="projects-container" class="space-y-4">
+                    <div class="project-entry grid gap-3 p-4 bg-gray-800 border border-gray-600 rounded">
+                        <input type="text" placeholder="Project Title" class="proj-title w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                        <input type="text" placeholder="Short Description" class="proj-desc w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                        <input type="text" placeholder="Tech Stack (e.g. AWS, Python)" class="proj-tech w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-gray-700 pb-6">
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300">Resume Link (PDF)</label>
-                    <input type="url" id="resume" placeholder="https://drive.google.com/..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm">
+            <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-cyan-400">Experience</h3>
+                    <button type="button" onclick="addExperience()" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white">+ Add Experience</button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300">GitHub URL</label>
-                    <input type="url" id="github" placeholder="https://github.com/..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300">Email Address</label>
-                    <input type="email" id="email" placeholder="hello@example.com" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm">
-                </div>
-            </div>
-
-            <div class="border-b border-gray-700 pb-6">
-                <h3 class="text-lg font-bold text-cyan-400 mb-3">Featured Project</h3>
-                <div class="space-y-3">
-                    <input type="text" id="proj_title" placeholder="Project Title (e.g., AWS Rekognition Facial Analysis App)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
-                    <input type="text" id="proj_desc" placeholder="Short description of what you built..." class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
-                    <input type="text" id="proj_tech" placeholder="Tech Stack (e.g., Python, AWS, HTML)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
+                <div id="exp-container" class="space-y-4">
+                    <div class="exp-entry grid md:grid-cols-3 gap-3 p-4 bg-gray-800 border border-gray-600 rounded">
+                        <input type="text" placeholder="Role (e.g. Intern)" class="exp-role w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                        <input type="text" placeholder="Organization" class="exp-org w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                        <input type="text" placeholder="Duration (e.g. Jun 2025 - Aug 2025)" class="exp-date w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    </div>
                 </div>
             </div>
 
-            <div class="pb-2">
-                <h3 class="text-lg font-bold text-cyan-400 mb-3">Recent Experience / Leadership</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="exp_role" placeholder="Role (e.g., Organizer)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
-                    <input type="text" id="exp_org" placeholder="Organization (e.g., National Jayantian Conclave)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
-                </div>
-            </div>
-
-            <button type="submit" id="deployBtn" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-cyan-500/30 transition-all duration-300">
-                🚀 Launch Pro Portfolio to AWS
+            <button type="submit" id="deployBtn" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-cyan-500/30 transition-all text-lg">
+                🚀 Launch Engine
             </button>
         </form>
 
         <div id="resultBox" class="mt-6 hidden bg-green-900 border border-green-500 p-4 rounded-lg text-center">
-            <h3 class="font-bold text-green-300 text-xl animate-pulse">⚙️ Provisioning AWS Infrastructure...</h3>
-            <p class="text-sm text-green-100 mt-2">Your automated pipeline is running. Wait 2 minutes, then click below:</p>
+            <h3 class="font-bold text-green-300 animate-pulse">⚙️ Provisioning AWS Infrastructure...</h3>
             <a id="liveLink" href="#" target="_blank" class="block mt-4 text-cyan-300 font-bold underline text-lg tracking-wider"></a>
         </div>
     </div>
 
     <script>
+        // JS to add new input blocks dynamically
+        function addProject() {
+            const container = document.getElementById('projects-container');
+            const html = `
+                <div class="project-entry grid gap-3 p-4 bg-gray-800 border border-gray-600 rounded mt-4 relative">
+                    <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-400 text-xs">Remove</button>
+                    <input type="text" placeholder="Project Title" class="proj-title w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    <input type="text" placeholder="Short Description" class="proj-desc w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    <input type="text" placeholder="Tech Stack" class="proj-tech w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function addExperience() {
+            const container = document.getElementById('exp-container');
+            const html = `
+                <div class="exp-entry grid md:grid-cols-3 gap-3 p-4 bg-gray-800 border border-gray-600 rounded mt-4 relative">
+                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 text-red-400 bg-gray-900 px-2 rounded-full text-xs border border-gray-700">X</button>
+                    <input type="text" placeholder="Role" class="exp-role w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    <input type="text" placeholder="Organization" class="exp-org w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    <input type="text" placeholder="Duration" class="exp-date w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
         document.getElementById('deployForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('deployBtn');
             btn.innerText = "Deploying..."; btn.disabled = true;
 
-            // Bundle all the new data into a structured JSON payload
+            // Extract all dynamic projects
+            const projects = Array.from(document.querySelectorAll('.project-entry')).map(entry => ({
+                title: entry.querySelector('.proj-title').value,
+                desc: entry.querySelector('.proj-desc').value,
+                tech: entry.querySelector('.proj-tech').value
+            }));
+
+            // Extract all dynamic experiences
+            const experience = Array.from(document.querySelectorAll('.exp-entry')).map(entry => ({
+                role: entry.querySelector('.exp-role').value,
+                org: entry.querySelector('.exp-org').value,
+                date: entry.querySelector('.exp-date').value
+            }));
+
             const data = {
                 name: document.getElementById('name').value,
                 bio: document.getElementById('bio').value,
@@ -86,23 +116,12 @@
                 resume: document.getElementById('resume').value,
                 github: document.getElementById('github').value,
                 email: document.getElementById('email').value,
-                projects: [
-                    {
-                        title: document.getElementById('proj_title').value,
-                        desc: document.getElementById('proj_desc').value,
-                        tech: document.getElementById('proj_tech').value
-                    }
-                ],
-                experience: [
-                    {
-                        role: document.getElementById('exp_role').value,
-                        org: document.getElementById('exp_org').value
-                    }
-                ]
+                projects: projects,
+                experience: experience
             };
 
-            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-            const formData = new FormData(); formData.append('file', blob, 'student_data.json');
+            const formData = new FormData(); 
+            formData.append('file', new Blob([JSON.stringify(data)], { type: 'application/json' }), 'student_data.json');
 
             try {
                 const response = await fetch('/one-click-deploy', { method: 'POST', body: formData });
@@ -110,10 +129,10 @@
                 document.getElementById('resultBox').classList.remove('hidden');
                 document.getElementById('liveLink').href = result.live_url;
                 document.getElementById('liveLink').innerText = result.live_url;
-                btn.innerText = "🚀 Launch Pro Portfolio to AWS"; btn.disabled = false;
+                btn.innerText = "🚀 Launch Engine"; btn.disabled = false;
             } catch (error) {
                 alert("Error triggering deployment.");
-                btn.innerText = "🚀 Launch Pro Portfolio to AWS"; btn.disabled = false;
+                btn.innerText = "🚀 Launch Engine"; btn.disabled = false;
             }
         });
     </script>
