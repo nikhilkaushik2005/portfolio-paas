@@ -1,0 +1,46 @@
+name: Platform Deployment Engine
+
+on:
+  repository_dispatch:
+    types: [deploy_trigger]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 1. Take the JSON from the API and save it into the generator folder
+      - name: Save Student Data
+        run: |
+          echo '${{ github.event.client_payload.data }}' > generator/student_data.json
+
+      # 2. Run the Docker container to build the HTML
+      - name: Run Generator Container
+        run: |
+          cd generator
+          docker build -t gen .
+          docker run -v ${{ github.workspace }}/generator:/app gen
+
+      # 3. Connect to AWS
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-region: us-east-1
+
+      # 4. Run Terraform to create the auto-deleting S3 bucket
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Deploy Infrastructure
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -var="student_id=${{ github.event.client_payload.id }}" -auto-approve
+
+      # 5. Push the generated HTML to the new S3 bucket
+      - name: Upload Website to S3
+        run: aws s3 sync generator/dist/ s3://portfolio-${{ github.event.client_payload.id }}
