@@ -1,86 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ name }} | Cloud Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Custom smooth fade-in animation */
-        .fade-in { animation: fadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
-        @keyframes fadeIn { 
-            0% { opacity: 0; transform: translateY(30px); } 
-            100% { opacity: 1; transform: translateY(0); } 
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        /* Blinking cursor for the typewriter effect */
-        .cursor::after { content: '|'; animation: blink 1s step-start infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(34, 211, 238, 0.3);
+            border-color: rgba(34, 211, 238, 0.5);
+        }
+        .fade-in { animation: fadeIn 1s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-950 text-white font-sans antialiased selection:bg-cyan-500 selection:text-white">
+<body class="bg-slate-950 text-slate-300 font-sans antialiased pb-24 selection:bg-cyan-500 selection:text-white">
     
-    <main class="min-h-screen flex flex-col justify-center items-center px-4 relative overflow-hidden">
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-cyan-900/20 blur-[120px] -z-10 rounded-full pointer-events-none"></div>
+
+    <main class="max-w-4xl mx-auto px-6 pt-20">
         
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
-
-        <div class="text-center z-10 max-w-4xl">
-            <p class="fade-in text-cyan-400 font-mono tracking-widest mb-4 uppercase text-sm" style="animation-delay: 0.1s;">
-                System Online // Hello World
-            </p>
-            
-            <h1 class="fade-in text-6xl md:text-8xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-500" style="animation-delay: 0.3s;">
-                I'm {{ name }}
+        <header class="text-center mb-20 fade-in">
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 text-white">
+                Hi, I'm <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{{ name }}</span>
             </h1>
+            <h2 class="text-2xl text-slate-400 font-light mb-8">{{ bio }}</h2>
             
-            <h2 id="typewriter-container" class="fade-in text-xl md:text-3xl text-slate-300 font-light h-10 mb-12 cursor" style="animation-delay: 0.5s;"></h2>
+            {% if resume %}
+            <a href="{{ resume }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full font-medium transition-all shadow-[0_0_15px_rgba(8,145,178,0.5)] hover:shadow-[0_0_25px_rgba(8,145,178,0.8)]">
+                <i class="fa-solid fa-file-pdf"></i> Download Resume
+            </a>
+            {% endif %}
+        </header>
 
-            <div class="fade-in mt-8" style="animation-delay: 0.7s;">
-                <p class="text-xs text-slate-500 uppercase tracking-[0.3em] mb-6">Core Technologies</p>
-                <div id="skills-container" class="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+        <section class="mb-20 fade-in" style="animation-delay: 0.2s;">
+            <h3 class="text-sm text-slate-500 uppercase tracking-[0.2em] mb-6 border-b border-slate-800 pb-2">Core Technologies</h3>
+            <div id="skills-container" class="flex flex-wrap gap-3">
+                </div>
+        </section>
+
+        <section class="mb-20 fade-in" style="animation-delay: 0.4s;">
+            <h3 class="text-sm text-slate-500 uppercase tracking-[0.2em] mb-6 border-b border-slate-800 pb-2">Featured Work</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for project in projects %}
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="w-12 h-12 bg-cyan-950 text-cyan-400 rounded-lg flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-code"></i>
                     </div>
+                    <h4 class="text-xl font-bold text-white mb-2">{{ project.title }}</h4>
+                    <p class="text-sm text-slate-400 mb-4">{{ project.desc }}</p>
+                    <p class="text-xs font-mono text-cyan-500 bg-cyan-950/50 inline-block px-3 py-1 rounded-full border border-cyan-900">{{ project.tech }}</p>
+                </div>
+                {% endfor %}
             </div>
-        </div>
+        </section>
 
-        <div class="fade-in absolute bottom-10 animate-bounce text-slate-500" style="animation-delay: 1.5s;">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-        </div>
+        <section class="fade-in" style="animation-delay: 0.6s;">
+            <h3 class="text-sm text-slate-500 uppercase tracking-[0.2em] mb-6 border-b border-slate-800 pb-2">Experience & Leadership</h3>
+            <div class="border-l-2 border-slate-800 ml-3 pl-8 py-2 relative">
+                {% for exp in experience %}
+                <div class="mb-8 relative">
+                    <div class="absolute -left-[41px] top-1 w-4 h-4 rounded-full bg-cyan-500 ring-4 ring-slate-950 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                    <h4 class="text-lg font-bold text-white">{{ exp.role }}</h4>
+                    <p class="text-slate-400">{{ exp.org }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
     </main>
 
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-full shadow-2xl z-50 fade-in" style="animation-delay: 0.8s;">
+        {% if github %}
+        <a href="{{ github }}" target="_blank" class="text-slate-400 hover:text-white hover:-translate-y-1 transition-all text-xl"><i class="fa-brands fa-github"></i></a>
+        {% endif %}
+        {% if email %}
+        <a href="mailto:{{ email }}" class="text-slate-400 hover:text-cyan-400 hover:-translate-y-1 transition-all text-xl"><i class="fa-solid fa-envelope"></i></a>
+        {% endif %}
+    </div>
+
     <script>
-        // --- 1. The Typewriter Animation for the Bio ---
-        const bioText = "{{ bio }}";
-        const typewriterElement = document.getElementById("typewriter-container");
-        let charIndex = 0;
-        
-        function typeWriter() {
-            if (charIndex < bioText.length) {
-                typewriterElement.innerHTML += bioText.charAt(charIndex);
-                charIndex++;
-                setTimeout(typeWriter, 50); // Speed of typing
-            } else {
-                // Remove the blinking cursor when typing is done
-                typewriterElement.classList.remove('cursor');
-            }
-        }
-        
-        // Start typing after the initial CSS fade-in finishes
-        setTimeout(typeWriter, 1200);
-
-
-        // --- 2. Interactive Skill Badges ---
-        // Take the raw comma-separated string from Python and split it into an array
+        // Parse skills and create badges
         const rawSkills = "{{ skills }}";
-        const skillsArray = rawSkills.split(',').map(skill => skill.trim());
+        const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
         const container = document.getElementById('skills-container');
-
-        // Create a beautiful glowing badge for each skill
+        
         skillsArray.forEach(skill => {
-            if(skill !== "") {
-                const badge = document.createElement('span');
-                badge.className = "px-6 py-2 bg-slate-900/80 border border-slate-700 rounded-full text-sm font-medium text-cyan-300 shadow-lg backdrop-blur-md hover:border-cyan-400 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all duration-300 cursor-default";
-                badge.innerText = skill;
-                container.appendChild(badge);
-            }
+            const badge = document.createElement('span');
+            badge.className = "px-4 py-1.5 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-300 hover:border-cyan-500 hover:text-cyan-400 cursor-default transition-colors";
+            badge.innerText = skill;
+            container.appendChild(badge);
         });
     </script>
 </body>
