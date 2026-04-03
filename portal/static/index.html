@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaaS Engine | Deploy Your Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
+        <h1 class="text-3xl font-bold mb-2 text-blue-400">PaaS Engine</h1>
+        <p class="text-gray-400 mb-6">Deploy a cloud-hosted portfolio in seconds.</p>
+
+        <form id="deployForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1 text-gray-300">Your Name</label>
+                <input type="text" id="name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-1 text-gray-300">Your Headline / Bio</label>
+                <input type="text" id="bio" placeholder="e.g. Future Cloud Architect" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1 text-gray-300">Top Skills (Comma separated)</label>
+                <input type="text" id="skills" placeholder="AWS, Python, Terraform" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <button type="submit" id="deployBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4">
+                🚀 Launch to AWS
+            </button>
+        </form>
+
+        <div id="resultBox" class="mt-6 hidden bg-green-900 border border-green-500 p-4 rounded-lg">
+            <h3 class="font-bold text-green-300">Deployment Triggered!</h3>
+            <p class="text-sm text-green-100 mt-1">Your AWS Server is spinning up.</p>
+            <p class="text-xs text-gray-300 mt-2">Wait 2-3 minutes, then click your live link below:</p>
+            <a id="liveLink" href="#" target="_blank" class="block mt-2 text-blue-300 underline break-all text-sm"></a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('deployForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('deployBtn');
+            btn.innerText = "Deploying...";
+            btn.disabled = true;
+
+            // 1. Grab what the user typed
+            const data = {
+                name: document.getElementById('name').value,
+                bio: document.getElementById('bio').value,
+                skills: document.getElementById('skills').value
+            };
+
+            // 2. Invisibly create the JSON file in the browser
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const formData = new FormData();
+            formData.append('file', blob, 'student_data.json');
+
+            // 3. Send it to your FastAPI backend
+            try {
+                const response = await fetch('/one-click-deploy', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // 4. Show the success URL to the user!
+                document.getElementById('resultBox').classList.remove('hidden');
+                document.getElementById('liveLink').href = result.live_url;
+                document.getElementById('liveLink').innerText = result.live_url;
+                btn.innerText = "🚀 Launch to AWS";
+                btn.disabled = false;
+            } catch (error) {
+                alert("Something went wrong!");
+                btn.innerText = "🚀 Launch to AWS";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

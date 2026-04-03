@@ -1,9 +1,18 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import requests
 import uuid
-import os # NEW: Import the OS module
+import os
 
 app = FastAPI()
+
+# --- NEW: Tell FastAPI where the HTML file is ---
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def serve_ui():
+    return FileResponse("static/index.html")
 
 # SECURE: We tell Python to look for a hidden environment variable
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
