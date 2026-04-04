@@ -1,91 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoFolio | Automated Portfolio Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Ambient Background Glow */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background: radial-gradient(circle at 15% 50%, rgba(8, 145, 178, 0.15), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(124, 58, 237, 0.15), transparent 25%);
+            background-color: #0f172a; /* deep slate */
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white flex justify-center min-h-screen p-4 py-10">
+<body class="text-slate-200 antialiased min-h-screen flex items-center justify-center p-4 md:p-8 selection:bg-cyan-500 selection:text-white">
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-3xl border border-gray-700 h-fit">
-        <h1 class="text-4xl font-black text-white mb-2">Auto<span class="text-cyan-400">Folio</span></h1>
-        <p class="text-gray-400 mb-8 font-medium">Professional PaaS Portfolio Generator</p>
+    <div class="ambient-bg"></div>
 
-        <form id="deployForm" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-sm text-gray-300 mb-1">Name</label><input type="text" id="name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></div>
-                <div><label class="block text-sm text-gray-300 mb-1">Headline</label><input type="text" id="bio" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></div>
-                <div class="md:col-span-2"><label class="block text-sm text-gray-300 mb-1">Top Skills (Comma separated)</label><input type="text" id="skills" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></div>
+    <div class="w-full max-w-4xl bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-6 md:p-10 relative overflow-hidden">
+        
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-purple-600"></div>
+
+        <header class="text-center mb-10 md:mb-12">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-2 text-white">
+                Auto<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Folio</span>
+            </h1>
+            <p class="text-slate-400 font-medium tracking-wide text-sm md:text-base uppercase">PaaS Engine Control Panel</p>
+        </header>
+
+        <form id="deployForm" class="space-y-8 md:space-y-10">
+            
+            <div class="bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50">
+                <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Core Identity
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">Display Name</label>
+                        <input type="text" id="name" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner" placeholder="e.g. Nikhil Kaushik">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">Headline</label>
+                        <input type="text" id="bio" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner" placeholder="e.g. Cloud Architect & DevOps">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">Tech Stack (Comma Separated)</label>
+                        <input type="text" id="skills" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner" placeholder="e.g. Python, AWS, Terraform, Docker">
+                    </div>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div><label class="block text-sm text-gray-300 mb-1">Resume Link (PDF)</label><input type="url" id="resume" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm"></div>
-                <div><label class="block text-sm text-gray-300 mb-1">GitHub URL</label><input type="url" id="github" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm"></div>
-                <div><label class="block text-sm text-gray-300 mb-1">Email Address</label><input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm"></div>
+            <div class="bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50">
+                <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-400"></span> Connectivity
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">Resume Link (PDF)</label>
+                        <input type="url" id="resume" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm" placeholder="https://drive.google.com/...">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">GitHub URL</label>
+                        <input type="url" id="github" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm" placeholder="https://github.com/...">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wide">Email Address</label>
+                        <input type="email" id="email" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm" placeholder="hello@example.com">
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-gray-900/50 p-6 rounded-lg border border-cyan-700/50 mb-6">
-                <h3 class="text-lg font-bold text-cyan-400 mb-3">Choose Your Design</h3>
-                <select id="templateChoice" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-cyan-500 font-bold">
-                    <option value="1">Template 1: Dark Mode Glass-morphism (Pro)</option>
-                    <option value="2">Template 2: Retro Hacker Terminal</option>
-                    <option value="3">Template 3: Premium Cyber-Glass (Animated)</option>
-                    <option value="4">Template 4: Pink Editorial Minimalist portfolio</option>
-                    <option value="5">Template 5: Kinetic Editorial portfolio</option>
-
-                </select>
+            <div class="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 p-6 rounded-2xl border border-cyan-700/40 shadow-[inset_0_0_20px_rgba(8,145,178,0.1)]">
+                <label class="block text-sm font-bold text-cyan-300 mb-3 tracking-wide">Target Architecture (Theme)</label>
+                <div class="relative">
+                    <select id="templateChoice" class="w-full appearance-none bg-slate-900 border border-cyan-700/50 rounded-xl px-4 py-4 pr-10 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all cursor-pointer hover:border-cyan-500">
+                        <option value="1">Template 1: Dark Mode Glass-morphism (Pro)</option>
+                        <option value="2">Template 2: Retro Hacker Terminal</option>
+                        <option value="3">Template 3: Premium Cyber-Glass (Animated)</option>
+                        <option value="4">Template 4: Pink Editorial Minimalist</option>
+                        <option value="5">Template 5: Kinetic Editorial</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-cyan-400">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-cyan-400">Projects</h3>
-                    <button type="button" onclick="addProject()" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white">+ Add Project</button>
+            <div>
+                <div class="flex justify-between items-center mb-4 px-2">
+                    <h3 class="text-lg font-bold text-white tracking-wide">Featured Projects</h3>
+                    <button type="button" onclick="addProject()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-full text-white transition-all hover:border-cyan-500 flex items-center gap-1 shadow-sm">
+                        <span class="text-cyan-400 font-bold">+</span> Add Project
+                    </button>
                 </div>
                 <div id="projects-container" class="space-y-4">
-                    <div class="project-entry grid gap-3 p-4 bg-gray-800 border border-gray-600 rounded">
-                        <input type="text" placeholder="Project Title" class="proj-title w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                        <input type="text" placeholder="Short Description" class="proj-desc w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                        <input type="text" placeholder="Tech Stack (e.g. AWS, Python)" class="proj-tech w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-3 p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group">
+                        <input type="text" placeholder="Project Title" class="proj-title w-full md:col-span-4 bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-sm" required>
+                        <input type="text" placeholder="Tech Stack (e.g. AWS, Python)" class="proj-tech w-full md:col-span-3 bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-sm" required>
+                        <input type="text" placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-sm" required>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-cyan-400">Experience</h3>
-                    <button type="button" onclick="addExperience()" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white">+ Add Experience</button>
+            <div>
+                <div class="flex justify-between items-center mb-4 px-2">
+                    <h3 class="text-lg font-bold text-white tracking-wide">Experience Timeline</h3>
+                    <button type="button" onclick="addExperience()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-full text-white transition-all hover:border-blue-500 flex items-center gap-1 shadow-sm">
+                        <span class="text-blue-400 font-bold">+</span> Add Role
+                    </button>
                 </div>
                 <div id="exp-container" class="space-y-4">
-                    <div class="exp-entry grid md:grid-cols-3 gap-3 p-4 bg-gray-800 border border-gray-600 rounded">
-                        <input type="text" placeholder="Role (e.g. Intern)" class="exp-role w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                        <input type="text" placeholder="Organization" class="exp-org w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                        <input type="text" placeholder="Duration (e.g. Jun 2025 - Aug 2025)" class="exp-date w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                    <div class="exp-entry grid grid-cols-1 md:grid-cols-3 gap-3 p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative">
+                        <input type="text" placeholder="Role (e.g. Intern)" class="exp-role w-full bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-sm" required>
+                        <input type="text" placeholder="Organization" class="exp-org w-full bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-sm" required>
+                        <input type="text" placeholder="Duration (e.g. 2025 - Present)" class="exp-date w-full bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-sm" required>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" id="deployBtn" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-cyan-500/30 transition-all text-lg">
-                🚀 Launch Engine
+            <button type="submit" id="deployBtn" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(8,145,178,0.3)] hover:shadow-[0_0_30px_rgba(8,145,178,0.5)] hover:-translate-y-1 transition-all duration-300 text-lg uppercase tracking-wider mt-4 border border-cyan-400/30">
+                🚀 Initiate Launch Sequence
             </button>
         </form>
 
-        <div id="resultBox" class="mt-6 hidden bg-green-900 border border-green-500 p-4 rounded-lg text-center">
-            <h3 class="font-bold text-green-300 animate-pulse">⚙️ Provisioning AWS Infrastructure...</h3>
-            <a id="liveLink" href="#" target="_blank" class="block mt-4 text-cyan-300 font-bold underline text-lg tracking-wider"></a>
+        <div id="resultBox" class="mt-8 hidden bg-emerald-900/30 border border-emerald-500/50 p-6 rounded-2xl text-center backdrop-blur-md">
+            <h3 class="font-bold text-emerald-400 animate-pulse text-lg mb-2">⚙️ Provisioning AWS Infrastructure...</h3>
+            <p class="text-slate-400 text-sm mb-4">Your personalized cloud environment is being built.</p>
+            <a id="liveLink" href="#" target="_blank" class="inline-block px-6 py-3 bg-emerald-600/20 border border-emerald-500 hover:bg-emerald-500 hover:text-white text-emerald-300 font-bold rounded-xl transition-all tracking-wider break-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"></a>
         </div>
     </div>
 
     <script>
-        // JS to add new input blocks dynamically
+        // JS to add new input blocks dynamically - UPGRADED WITH MATCHING UI
         function addProject() {
             const container = document.getElementById('projects-container');
             const html = `
-                <div class="project-entry grid gap-3 p-4 bg-gray-800 border border-gray-600 rounded mt-4 relative">
-                    <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-400 text-xs">Remove</button>
-                    <input type="text" placeholder="Project Title" class="proj-title w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                    <input type="text" placeholder="Short Description" class="proj-desc w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                    <input type="text" placeholder="Tech Stack" class="proj-tech w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-3 p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
+                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
+                    <input type="text" placeholder="Project Title" class="proj-title w-full md:col-span-4 bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-sm" required>
+                    <input type="text" placeholder="Tech Stack" class="proj-tech w-full md:col-span-3 bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-sm" required>
+                    <input type="text" placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-sm" required>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
         }
@@ -93,11 +156,11 @@
         function addExperience() {
             const container = document.getElementById('exp-container');
             const html = `
-                <div class="exp-entry grid md:grid-cols-3 gap-3 p-4 bg-gray-800 border border-gray-600 rounded mt-4 relative">
-                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 text-red-400 bg-gray-900 px-2 rounded-full text-xs border border-gray-700">X</button>
-                    <input type="text" placeholder="Role" class="exp-role w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                    <input type="text" placeholder="Organization" class="exp-org w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
-                    <input type="text" placeholder="Duration" class="exp-date w-full bg-gray-700 rounded px-3 py-2 border border-gray-600" required>
+                <div class="exp-entry grid grid-cols-1 md:grid-cols-3 gap-3 p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
+                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
+                    <input type="text" placeholder="Role" class="exp-role w-full bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-sm" required>
+                    <input type="text" placeholder="Organization" class="exp-org w-full bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-sm" required>
+                    <input type="text" placeholder="Duration" class="exp-date w-full bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-sm" required>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
         }
@@ -105,16 +168,16 @@
         document.getElementById('deployForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('deployBtn');
-            btn.innerText = "Deploying..."; btn.disabled = true;
+            btn.innerHTML = "<span class='animate-pulse'>⏳ Processing Request...</span>"; 
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
 
-            // Extract all dynamic projects
             const projects = Array.from(document.querySelectorAll('.project-entry')).map(entry => ({
                 title: entry.querySelector('.proj-title').value,
                 desc: entry.querySelector('.proj-desc').value,
                 tech: entry.querySelector('.proj-tech').value
             }));
 
-            // Extract all dynamic experiences
             const experience = Array.from(document.querySelectorAll('.exp-entry')).map(entry => ({
                 role: entry.querySelector('.exp-role').value,
                 org: entry.querySelector('.exp-org').value,
@@ -139,13 +202,19 @@
             try {
                 const response = await fetch('/one-click-deploy', { method: 'POST', body: formData });
                 const result = await response.json();
+                
                 document.getElementById('resultBox').classList.remove('hidden');
                 document.getElementById('liveLink').href = result.live_url;
-                document.getElementById('liveLink').innerText = result.live_url;
-                btn.innerText = "🚀 Launch Engine"; btn.disabled = false;
+                document.getElementById('liveLink').innerText = "🔗 Click here to view live site";
+                
+                btn.innerHTML = "✅ Deployment Triggered"; 
+                btn.classList.remove('opacity-70', 'cursor-not-allowed', 'from-cyan-600', 'to-blue-600');
+                btn.classList.add('from-emerald-600', 'to-teal-600');
             } catch (error) {
                 alert("Error triggering deployment.");
-                btn.innerText = "🚀 Launch Engine"; btn.disabled = false;
+                btn.innerText = "🚀 Initiate Launch Sequence"; 
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         });
     </script>
