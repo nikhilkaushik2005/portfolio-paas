@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Dark Editorial Palette */
+            --bg-base: #0f0e0d;
+            --text-main: #e3ded5;
+            --text-muted: #8c8881;
+            --line-color: rgba(227, 222, 213, 0.15);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Manrope', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .serif {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+        }
+
+        /* Subtle Noise Overlay for Texture */
+        .noise {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Cinematic Slow Reveals */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Editorial Utilities */
+        .hairline-b { border-bottom: 1px solid var(--line-color); }
+        .hairline-t { border-top: 1px solid var(--line-color); }
+        
+        .nav-link { position: relative; display: inline-block; overflow: hidden; padding-bottom: 2px;}
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px;
+            background-color: var(--text-main); transform: translateX(-101%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-link:hover::after { transform: translateX(0); }
+    </style>
+</head>
+<body class="antialiased selection:bg-[#e3ded5] selection:text-[#0f0e0d]">
+
+    <div class="noise"></div>
+
+    <nav class="fixed top-0 left-0 w-full p-8 md:px-16 md:py-10 flex justify-between items-start z-50 mix-blend-difference pointer-events-none">
+        <div class="flex flex-col">
+            <span class="text-2xl md:text-3xl uppercase tracking-[0.15em] font-normal serif">{{ name }}</span>
+            <span class="text-[10px] text-[var(--text-muted)] tracking-widest mt-1">PORTFOLIO</span>
+        </div>
+        <div class="flex flex-col items-end gap-2 text-xs uppercase tracking-[0.15em] font-light pointer-events-auto">
+            <a href="#index" class="nav-link">Index</a>
+            {% if resume %}
+            <a href="{{ resume }}" target="_blank" class="nav-link">Curriculum Vitae</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <header class="relative h-[100svh] w-full bg-[#0f0e0d] border-b border-[var(--line-color)]">
+        <div id="physics-canvas" class="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"></div>
+        
+        <div class="absolute inset-0 z-0 pointer-events-none flex flex-col justify-between py-[15vh] px-8 md:px-16 text-[var(--text-muted)] opacity-30 font-light">
+            <div class="flex flex-col">
+                <span class="text-4xl md:text-6xl serif">Concept.</span>
+            </div>
+            <div class="flex flex-col text-right">
+                <span class="text-4xl md:text-6xl serif">Creation.</span>
+            </div>
+            <div class="flex flex-col text-center">
+                <span class="text-4xl md:text-6xl serif">Execution.</span>
+            </div>
+        </div>
+
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex gap-4 pointer-events-auto">
+            <button id="btn-spawn" class="bg-transparent border border-[var(--text-main)] text-[var(--text-main)] px-8 py-3 text-xs uppercase tracking-[0.2em] hover:bg-[var(--text-main)] hover:text-[#0f0e0d] transition-all duration-300">
+                Generate Idea
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-screen-2xl mx-auto w-full px-6 md:px-16 pt-32 pb-40 relative z-20 bg-[var(--bg-base)]">
+        
+        <section class="mb-40 reveal">
+            <div class="grid grid-cols-1 md:grid-cols-12">
+                <div class="md:col-span-8 md:col-start-3 text-center">
+                    <p class="text-xl md:text-3xl font-light text-[var(--text-muted)] leading-relaxed serif">
+                        {{ bio }}
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-40 reveal">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 hairline-t pt-10">
+                <div class="md:col-span-3">
+                    <h2 class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">01 / Core Expertise</h2>
+                </div>
+                <div class="md:col-span-9">
+                    <div id="skills-container" class="flex flex-wrap gap-x-12 gap-y-6 text-2xl md:text-4xl serif font-light">
+                        </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="index" class="mb-40">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 hairline-b pb-10 mb-16 reveal">
+                <div class="md:col-span-3">
+                    <h2 class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">02 / Selected Works</h2>
+                </div>
+                <div class="md:col-span-9">
+                    <h2 class="text-5xl md:text-7xl tracking-tight serif">The Project Index.</h2>
+                </div>
+            </div>
+            
+            <div class="flex flex-col">
+                {% for project in projects %}
+                <article class="group relative hairline-b py-12 md:py-16 reveal flex flex-col md:flex-row justify-between items-start md:items-center gap-8 hover:bg-white/5 transition-colors px-4 -mx-4 rounded-xl cursor-pointer">
+                    
+                    <div class="md:w-1/2 flex gap-8 items-baseline">
+                        <span class="text-sm font-light text-[var(--text-muted)] opacity-50 group-hover:opacity-100 transition-opacity">0{{ loop.index }}</span>
+                        <div>
+                            <h3 class="text-3xl md:text-5xl tracking-tight mb-3 serif group-hover:italic group-hover:translate-x-4 transition-all duration-500">{{ project.title }}</h3>
+                            <p class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">{{ project.tech }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-5/12">
+                        <p class="text-sm md:text-base font-light text-[var(--text-muted)] leading-relaxed group-hover:text-[var(--text-main)] transition-colors duration-500">{{ project.desc }}</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="mb-20 reveal">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 hairline-t pt-10">
+                <div class="md:col-span-3">
+                    <h2 class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">03 / Chronology</h2>
+                </div>
+                <div class="md:col-span-9">
+                    <div class="flex flex-col">
+                        {% for exp in experience %}
+                        <div class="hairline-b py-8 flex flex-col md:flex-row justify-between md:items-center gap-4 group hover:bg-white/5 transition-colors px-4 -mx-4 rounded-xl cursor-default">
+                            <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-12">
+                                <span class="text-xs tracking-widest text-[var(--text-muted)] w-24">{{ exp.date }}</span>
+                                <h4 class="text-2xl md:text-3xl serif group-hover:translate-x-4 transition-all duration-500">{{ exp.role }}</h4>
+                            </div>
+                            <span class="text-xs uppercase tracking-[0.1em] text-[var(--text-muted)]">{{ exp.org }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#050505] text-[var(--text-main)] px-6 md:px-16 py-32 relative overflow-hidden">
+        <div class="max-w-screen-2xl mx-auto w-full relative z-10 reveal">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-16 mb-24">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] mb-8">Initiate Contact</p>
+                    {% if email %}
+                    <a href="mailto:{{ email }}" class="text-4xl md:text-7xl tracking-tight serif inline-block hover:italic transition-all duration-500 hover:text-white">
+                        Start a dialogue.
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="flex gap-12 text-xs uppercase tracking-[0.15em] font-light">
+                    {% if github %}
+                    <a href="{{ github }}" target="_blank" class="nav-link">Github</a>
+                    {% endif %}
+                    {% if email %}
+                    <a href="mailto:{{ email }}" class="nav-link">Email</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="hairline-t pt-8 flex justify-between items-center text-[10px] text-[var(--text-muted)] uppercase tracking-widest">
+                <p>© 2026 {{ name }}</p>
+                <p>Infrastructure Provisioned via AutoFolio Engine</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. MATTER.JS PHYSICS SIMULATION ---
+        const initPhysics = () => {
+            const Engine = Matter.Engine,
+                  Render = Matter.Render,
+                  Runner = Matter.Runner,
+                  Bodies = Matter.Bodies,
+                  Composite = Matter.Composite,
+                  Mouse = Matter.Mouse,
+                  MouseConstraint = Matter.MouseConstraint,
+                  Events = Matter.Events;
+
+            // Create engine
+            const engine = Engine.create();
+            // Lighter gravity to make it feel ethereal at first
+            engine.world.gravity.y = 0.4;
+
+            const container = document.getElementById('physics-canvas');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Create renderer
+            const render = Render.create({
+                element: container,
+                engine: engine,
+                options: {
+                    width: width,
+                    height: height,
+                    wireframes: false,
+                    background: 'transparent',
+                    pixelRatio: window.devicePixelRatio
+                }
+            });
+
+            // Styling variables
+            const colorStatic = 'rgba(227, 222, 213, 0.1)';
+            const colorParticle = '#e3ded5';
+
+            const staticBodies = [];
+
+            // --- Phase II: Creation (The Plinko Obstacles) ---
+            const rows = 4;
+            const cols = 6;
+            const startY = height * 0.35;
+            const spacingY = (height * 0.3) / rows;
+            const spacingX = width / cols;
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    let offsetX = (i % 2 === 0) ? 0 : spacingX / 2;
+                    let peg = Bodies.circle((j * spacingX) + offsetX, startY + (i * spacingY), 8, {
+                        isStatic: true,
+                        render: { fillStyle: colorStatic }
+                    });
+                    staticBodies.push(peg);
+                }
+            }
+
+            // --- Phase III: Execution (The Funnel) ---
+            const wallOptions = { isStatic: true, render: { fillStyle: colorStatic } };
+            const funnelLeft = Bodies.rectangle(width * 0.2, height * 0.85, width * 0.5, 20, { 
+                ...wallOptions, angle: Math.PI / 6 
+            });
+            const funnelRight = Bodies.rectangle(width * 0.8, height * 0.85, width * 0.5, 20, { 
+                ...wallOptions, angle: -Math.PI / 6 
+            });
+            staticBodies.push(funnelLeft, funnelRight);
+
+            Composite.add(engine.world, staticBodies);
+
+            // Add Mouse Interaction
+            const mouse = Mouse.create(render.canvas);
+            const mouseConstraint = MouseConstraint.create(engine, {
+                mouse: mouse,
+                constraint: {
+                    stiffness: 0.2,
+                    render: { visible: false }
+                }
+            });
+            Composite.add(engine.world, mouseConstraint);
+            render.mouse = mouse; 
+
+            // SCROLL FIX: Prevent Matter.js from hijacking the scroll wheel
+            mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
+            mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
+
+            // Start Physics
+            Render.run(render);
+            const runner = Runner.create();
+            Runner.run(runner, engine);
+
+            // Function to spawn a new particle
+            const spawnParticle = () => {
+                const xPos = (Math.random() * (width * 0.8)) + (width * 0.1);
+                const size = Math.random() * 10 + 5; 
+                
+                const particle = Bodies.circle(xPos, -20, size, {
+                    restitution: 0.6, 
+                    friction: 0.05,
+                    density: 0.04,
+                    render: {
+                        fillStyle: colorParticle,
+                        opacity: 0.8
+                    }
+                });
+                
+                Composite.add(engine.world, particle);
+            };
+
+            // Spawn Button Logic
+            document.getElementById('btn-spawn').addEventListener('click', () => {
+                for(let i=0; i<3; i++) setTimeout(spawnParticle, i * 100);
+            });
+
+            // Initial stream of particles
+            let initialStream = 0;
+            const streamInterval = setInterval(() => {
+                spawnParticle();
+                initialStream++;
+                if(initialStream > 15) clearInterval(streamInterval);
+            }, 400);
+
+            // Cleanup loop
+            Events.on(engine, 'beforeUpdate', function() {
+                const bodies = Composite.allBodies(engine.world);
+                for (let i = 0; i < bodies.length; i++) {
+                    const body = bodies[i];
+                    if (!body.isStatic && body.position.y > height + 100) {
+                        Composite.remove(engine.world, body);
+                    }
+                }
+            });
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                render.canvas.width = container.clientWidth;
+                render.canvas.height = container.clientHeight;
+            });
+        };
+
+        // Initialize physics once window loads
+        window.addEventListener('load', initPhysics);
+
+
+        // --- 2. STANDARD PORTFOLIO LOGIC ---
+        
+        // Skill Injection
+        const skillsContainer = document.getElementById('skills-container');
+        const rawSkills = "{{ skills }}";
+        const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
+        
+        skillsArray.forEach((skill, index) => {
+            const span = document.createElement('span');
+            span.className = "hover:italic hover:text-white transition-all duration-300 cursor-default";
+            span.innerText = skill;
+            skillsContainer.appendChild(span);
+            
+            if (index < skillsArray.length - 1) {
+                const separator = document.createElement('span');
+                separator.className = "text-[var(--text-muted)] font-light mx-1";
+                separator.innerText = ",";
+                skillsContainer.appendChild(separator);
+            }
+        });
+
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => { 
+                if (entry.isIntersecting) { 
+                    entry.target.classList.add('visible'); 
+                    obs.unobserve(entry.target); 
+                } 
+            });
+        }, { root: null, rootMargin: '0px', threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

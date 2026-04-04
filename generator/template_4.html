@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --pink-main: #FF2A85;
+            --pink-light: #FFB5D5;
+            --ink: #0F0F0F;
+            --paper: #F8F8F8;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--paper);
+            color: var(--ink);
+            overflow-x: hidden;
+            /* Architectural Dot Grid Background */
+            background-image: radial-gradient(var(--ink) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* High-Impact Brutalist Utilities */
+        .thick-border { border: 4px solid var(--ink); }
+        
+        .brutal-card {
+            background-color: white;
+            border: 4px solid var(--ink);
+            box-shadow: 10px 10px 0px 0px var(--pink-main);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .brutal-card:hover {
+            transform: translate(6px, 6px);
+            box-shadow: 4px 4px 0px 0px var(--ink);
+        }
+
+        .brutal-btn {
+            background-color: var(--pink-main);
+            color: white;
+            border: 4px solid var(--ink);
+            box-shadow: 6px 6px 0px 0px var(--ink);
+            transition: all 0.1s ease-out;
+        }
+
+        .brutal-btn:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px 0px var(--ink);
+            background-color: var(--ink);
+            color: var(--pink-main);
+        }
+
+        .brutal-btn-alt {
+            background-color: white;
+            color: var(--ink);
+            border: 4px solid var(--ink);
+            box-shadow: 6px 6px 0px 0px var(--pink-main);
+            transition: all 0.1s ease-out;
+        }
+
+        .brutal-btn-alt:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px 0px var(--ink);
+            background-color: var(--pink-light);
+        }
+
+        /* Seamless Marquee */
+        .marquee-wrapper {
+            background: var(--ink);
+            color: var(--pink-light);
+            border-top: 4px solid var(--ink);
+            border-bottom: 4px solid var(--ink);
+            padding: 1.25rem 0;
+            overflow: hidden;
+            display: flex;
+            white-space: nowrap;
+        }
+        .marquee-track {
+            display: flex;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Hard Reveal Animations */
+        .reveal-hard {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .reveal-hard.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    </style>
+</head>
+<body class="selection:bg-black selection:text-[#FF2A85]">
+
+    <header class="min-h-[90vh] flex flex-col justify-center px-6 md:px-16 relative pt-20 pb-10">
+        <div class="max-w-7xl mx-auto w-full relative z-10">
+            <div class="hidden md:block absolute -top-10 right-10 w-32 h-32 bg-[#FFB5D5] thick-border rounded-full reveal-hard" style="transition-delay: 400ms;"></div>
+            <div class="hidden md:block absolute bottom-20 right-40 w-24 h-24 bg-[#FF2A85] thick-border transform rotate-12 reveal-hard" style="transition-delay: 500ms;"></div>
+
+            <div class="bg-white thick-border p-8 md:p-16 shadow-[16px_16px_0px_0px_#111] reveal-hard">
+                <h1 class="text-7xl md:text-[9rem] font-black tracking-tighter uppercase leading-[0.85] mb-8 text-[#111]">
+                    <span class="block">Hello,</span>
+                    <span class="block text-[#FF2A85] drop-shadow-[4px_4px_0px_#111]">I'm {{ name }}</span>
+                </h1>
+                
+                <p class="text-2xl md:text-3xl font-semibold max-w-3xl mb-12 leading-snug border-l-8 border-[#FF2A85] pl-6 py-2">
+                    {{ bio }}
+                </p>
+                
+                <div class="flex flex-wrap gap-6">
+                    <a href="#projects" class="brutal-btn px-8 py-4 font-bold text-xl inline-flex items-center gap-3 uppercase tracking-wide">
+                        View Work <i data-lucide="arrow-down-right" stroke-width="3"></i>
+                    </a>
+                    {% if resume %}
+                    <a href="{{ resume }}" target="_blank" class="brutal-btn-alt px-8 py-4 font-bold text-xl inline-flex items-center gap-3 uppercase tracking-wide">
+                        Resume <i data-lucide="file-text" stroke-width="3"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="w-full my-10 reveal-hard">
+        <div class="marquee-wrapper transform -rotate-1 md:-rotate-2 scale-105 shadow-[0_10px_0_0_#FF2A85]">
+            <div class="marquee-track text-4xl font-black uppercase tracking-widest" id="marquee-inner">
+                </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto w-full px-6 py-20">
+        <section id="projects" class="mb-40">
+            <div class="flex items-end gap-6 mb-16 reveal-hard">
+                <h2 class="text-6xl md:text-8xl font-black uppercase">Projects</h2>
+                <div class="h-4 flex-grow bg-[#FF2A85] thick-border mb-3 md:mb-5 hidden sm:block"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
+                {% for project in projects %}
+                <article class="brutal-card p-8 md:p-10 flex flex-col h-full reveal-hard group relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-24 h-24 bg-[#FFB5D5] rounded-full thick-border transform group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                    
+                    <div class="relative z-10 flex-grow">
+                        <div class="mb-6 flex justify-between items-start">
+                            <h3 class="text-4xl font-black uppercase leading-tight">{{ project.title }}</h3>
+                            <a href="#" class="w-12 h-12 bg-black text-white flex justify-center items-center rounded-full flex-shrink-0 hover:bg-[#FF2A85] transition-colors thick-border">
+                                <i data-lucide="external-link" stroke-width="3"></i>
+                            </a>
+                        </div>
+                        <p class="text-xl font-medium text-gray-800 mb-8">{{ project.desc }}</p>
+                    </div>
+                    
+                    <div class="relative z-10 pt-6 border-t-4 border-black mt-auto">
+                        <p class="font-bold uppercase tracking-widest text-[#FF2A85] text-sm mb-2">Tech Stack</p>
+                        <p class="font-bold text-lg">{{ project.tech }}</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="mb-32">
+            <div class="flex items-end gap-6 mb-16 reveal-hard">
+                <div class="h-4 flex-grow bg-black thick-border mb-3 md:mb-5 hidden sm:block"></div>
+                <h2 class="text-6xl md:text-8xl font-black uppercase">Experience</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-8">
+                {% for exp in experience %}
+                <div class="bg-white thick-border p-6 md:p-8 shadow-[8px_8px_0px_0px_#FFB5D5] hover:shadow-[8px_8px_0px_0px_#FF2A85] transition-all reveal-hard flex flex-col md:flex-row md:items-center justify-between gap-6 group cursor-default">
+                    <div class="flex-grow">
+                        <h4 class="text-3xl font-black uppercase mb-2 group-hover:translate-x-2 transition-transform">{{ exp.role }}</h4>
+                        <p class="text-2xl font-bold text-[#FF2A85]">{{ exp.org }}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="bg-black text-[#FFB5D5] font-black text-xl px-6 py-3 thick-border block text-center transform group-hover:-rotate-3 transition-transform">
+                            {{ exp.date }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#FF2A85] text-white thick-border border-b-0 border-l-0 border-r-0 pt-24 pb-12 px-6 relative overflow-hidden">
+        <div class="absolute -bottom-10 left-0 w-full text-[15rem] font-black text-[#e61e73] whitespace-nowrap opacity-50 pointer-events-none select-none z-0">
+            CONNECT CONNECT 
+        </div>
+
+        <div class="max-w-7xl mx-auto w-full text-center relative z-10">
+            <h2 class="text-7xl md:text-[8rem] font-black mb-12 uppercase drop-shadow-[6px_6px_0px_#111]">Ping Me.</h2>
+            
+            <div class="flex justify-center gap-8 mb-20">
+                {% if github %}
+                <a href="{{ github }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full">
+                    <i data-lucide="github" class="w-10 h-10" stroke-width="2.5"></i>
+                </a>
+                {% endif %}
+                {% if email %}
+                <a href="mailto:{{ email }}" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full">
+                    <i data-lucide="mail" class="w-10 h-10" stroke-width="2.5"></i>
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="bg-black inline-block px-6 py-3 thick-border transform rotate-1">
+                <p class="font-bold text-[#FFB5D5] uppercase tracking-widest text-sm">© 2026. Infrastructure Provisioned via AutoFolio Engine</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Marquee Logic
+        const rawSkills = "{{ skills }}";
+        const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
+        // Use a heavy dot separator
+        const marqueeString = skillsArray.join(' &nbsp; • &nbsp; ') + ' &nbsp; • &nbsp; ';
+        const marqueeInner = document.getElementById('marquee-inner');
+        // Duplicate text heavily to ensure the screen is always filled during animation
+        marqueeInner.innerHTML = marqueeString.repeat(4);
+
+        // Intersection Observer for hard snappy reveals
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => { 
+                if (entry.isIntersecting) { 
+                    entry.target.classList.add('visible'); 
+                    obs.unobserve(entry.target); 
+                } 
+            });
+        }, { root: null, rootMargin: '0px', threshold: 0.15 });
+        
+        document.querySelectorAll('.reveal-hard').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
