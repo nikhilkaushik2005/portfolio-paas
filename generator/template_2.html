@@ -35,7 +35,7 @@
         .flicker { animation: crt-flicker 0.15s infinite; }
         @keyframes crt-flicker { 0% { opacity: 0.98; } 50% { opacity: 1; } 100% { opacity: 0.99; } }
 
-        /* --- STAGE 1: LOCKDOWN (Prevents the Millisecond Flash) --- */
+        /* --- STAGE 1: LOCKDOWN --- */
         #scroll-content, .scroll-block, .cmd-output, #final-prompt { 
             opacity: 0; 
             pointer-events: none; 
@@ -70,7 +70,7 @@
             justify-content: flex-start;
             position: fixed; 
             inset: 0;
-            z-index: 9999; /* Highest priority */
+            z-index: 9999;
             transition: opacity 0.5s ease-out;
         }
     </style>
@@ -160,11 +160,12 @@
                     </div>
                 </div>
 
+                {% if resume %}
                 <div class="mb-10 scroll-block">
                     <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span></div>
                     <div>
                         <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
-                        <span class="cmd-type text-white">curl -O --url <span class="text-cyan-400">"{{ resume_link }}"</span></span>
+                        <span class="cmd-type text-white">curl -O --url <span class="text-cyan-400">"{{ resume }}"</span></span>
                     </div>
                     <div class="cmd-output ml-4 mt-4 font-mono text-sm border border-gray-700/50 bg-[#050505] p-5 w-full md:w-3/4 rounded-lg relative overflow-hidden group shadow-inner">
                         <div class="absolute top-0 left-0 w-full h-0.5 bg-gray-800"><div class="h-full bg-emerald-500 w-full"></div></div>
@@ -172,9 +173,37 @@
                             <span>100% Received</span><span>2.4M</span><span>0:00:00</span>
                         </div>
                         <p class="text-gray-400 text-xs mb-4">File: <span class="text-white font-bold">resume_latest.pdf</span></p>
-                        <a href="{{ resume_link }}" target="_blank" class="relative block w-full text-center bg-emerald-900/30 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 font-bold py-3 rounded transition-all duration-300">
+                        <a href="{{ resume }}" target="_blank" class="relative block w-full text-center bg-emerald-900/30 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 font-bold py-3 rounded transition-all duration-300">
                              [ EXECUTE_RESUME.PDF ]
                         </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mb-10 scroll-block">
+                    <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                        <span class="cmd-type text-white">netstat -an | grep <span class="text-cyan-400">"ESTABLISHED"</span></span>
+                    </div>
+                    <div class="cmd-output ml-4 mt-4 space-y-2 font-mono text-sm">
+                        {% if email %}
+                        <div class="flex items-center gap-4 text-gray-400">
+                            <span class="text-yellow-200">tcp</span><span>0.0.0.0:25</span><span><a href="mailto:{{ email }}" class="text-emerald-400 hover:text-white underline hover:bg-emerald-900/50 transition-colors px-1">{{ email }}</a></span><span class="text-emerald-500">ESTABLISHED</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if github %}
+                        <div class="flex items-center gap-4 text-gray-400">
+                            <span class="text-yellow-200">tcp</span><span>0.0.0.0:443</span><span><a href="{{ github }}" target="_blank" class="text-cyan-400 hover:text-white underline hover:bg-cyan-900/50 transition-colors px-1">github.com</a></span><span class="text-emerald-500">ESTABLISHED</span>
+                        </div>
+                        {% endif %}
+
+                        {% if linkedin %}
+                        <div class="flex items-center gap-4 text-gray-400">
+                            <span class="text-yellow-200">tcp</span><span>0.0.0.0:443</span><span><a href="{{ linkedin }}" target="_blank" class="text-blue-400 hover:text-white underline hover:bg-blue-900/50 transition-colors px-1">linkedin.com</a></span><span class="text-emerald-500">ESTABLISHED</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -206,11 +235,9 @@
             const mainTerminal = document.getElementById('main-terminal');
             const biosContainer = document.getElementById('bios-content');
 
-            // Hard reset scroll
             window.scrollTo(0,0);
             terminalContainer.scrollTop = 0;
 
-            // 1. Pre-process text immediately
             try { prepareAllTyping(); } catch(e) { console.error("Prep failed", e); }
 
             const biosLines = [
@@ -251,7 +278,6 @@
                 }, 500);
             }
 
-            // Fallback: If BIOS is still there after 5 seconds, force exit
             setTimeout(() => {
                 if(biosScreen.style.display !== 'none') exitBios();
             }, 5000);
@@ -338,7 +364,33 @@
                     if(cmd === 'help') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-gray-400">Commands: whoami, contact, help, clear, sudo</div>`);
                     if(cmd === 'whoami') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-yellow-200">guest_user_v1.0</div>`);
                     if(cmd === 'sudo') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-red-500 font-bold">Permission Denied.</div>`);
-                    if(cmd === 'contact') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-emerald-400">Email: <a href="mailto:{{ email }}">{{ email }}</a></div>`);
+                    
+                    // UPDATED DYNAMIC CONTACT COMMAND
+                 // Safely load the Python/Jinja variables into standard JavaScript strings
+                    const userEmail = "{{ email | default('') }}";
+                    const userGithub = "{{ github | default('') }}";
+                    const userLinkedin = "{{ linkedin | default('') }}";
+
+                    // UPDATED DYNAMIC CONTACT COMMAND (Pure JS)
+                    if(cmd === 'contact') {
+                        let contactOutput = '';
+                        
+                        if (userEmail !== "") {
+                            contactOutput += `<div class="ml-4 text-emerald-400">Email: <a href="mailto:${userEmail}">${userEmail}</a></div>`;
+                        }
+                        if (userGithub !== "") {
+                            contactOutput += `<div class="ml-4 text-cyan-400">GitHub: <a href="${userGithub}" target="_blank">${userGithub}</a></div>`;
+                        }
+                        if (userLinkedin !== "") {
+                            contactOutput += `<div class="ml-4 text-blue-400">LinkedIn: <a href="${userLinkedin}" target="_blank">${userLinkedin}</a></div>`;
+                        }
+                        
+                        if(contactOutput === '') {
+                            contactOutput = `<div class="ml-4 text-gray-500">No contact links provided.</div>`;
+                        }
+                        
+                        interactiveArea.insertAdjacentHTML('beforeend', contactOutput);
+                    }
                     if(cmd === 'clear') { document.getElementById('scroll-content').innerHTML = ''; interactiveArea.innerHTML = ''; }
                     
                     terminalContainer.scrollTop = terminalContainer.scrollHeight;

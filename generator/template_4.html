@@ -204,12 +204,19 @@
             
             <div class="flex justify-center gap-8 mb-20">
                 {% if github %}
-                <a href="{{ github }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full">
+                <a href="{{ github }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform">
                     <i data-lucide="github" class="w-10 h-10" stroke-width="2.5"></i>
                 </a>
                 {% endif %}
+                
+                {% if linkedin %}
+                <a href="{{ linkedin }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform">
+                    <i data-lucide="linkedin" class="w-10 h-10" stroke-width="2.5"></i>
+                </a>
+                {% endif %}
+
                 {% if email %}
-                <a href="mailto:{{ email }}" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full">
+                <a href="mailto:{{ email }}" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform">
                     <i data-lucide="mail" class="w-10 h-10" stroke-width="2.5"></i>
                 </a>
                 {% endif %}
