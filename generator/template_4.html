@@ -6,7 +6,9 @@
     <title>{{ name }} | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --pink-main: #FF2A85;
@@ -120,11 +122,11 @@
                 
                 <div class="flex flex-wrap gap-6">
                     <a href="#projects" class="brutal-btn px-8 py-4 font-bold text-xl inline-flex items-center gap-3 uppercase tracking-wide">
-                        View Work <i data-lucide="arrow-down-right" stroke-width="3"></i>
+                        View Work <i class="fa-solid fa-arrow-down ml-1"></i>
                     </a>
                     {% if resume %}
                     <a href="{{ resume }}" target="_blank" class="brutal-btn-alt px-8 py-4 font-bold text-xl inline-flex items-center gap-3 uppercase tracking-wide">
-                        Resume <i data-lucide="file-text" stroke-width="3"></i>
+                        Resume <i class="fa-solid fa-file-pdf ml-1"></i>
                     </a>
                     {% endif %}
                 </div>
@@ -154,8 +156,8 @@
                     <div class="relative z-10 flex-grow">
                         <div class="mb-6 flex justify-between items-start">
                             <h3 class="text-4xl font-black uppercase leading-tight">{{ project.title }}</h3>
-                            <a href="#" class="w-12 h-12 bg-black text-white flex justify-center items-center rounded-full flex-shrink-0 hover:bg-[#FF2A85] transition-colors thick-border">
-                                <i data-lucide="external-link" stroke-width="3"></i>
+                            <a href="#" class="w-12 h-12 bg-black text-white flex justify-center items-center rounded-full flex-shrink-0 hover:bg-[#FF2A85] transition-colors thick-border text-xl">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </a>
                         </div>
                         <p class="text-xl font-medium text-gray-800 mb-8">{{ project.desc }}</p>
@@ -204,20 +206,20 @@
             
             <div class="flex justify-center gap-8 mb-20">
                 {% if github %}
-                <a href="{{ github }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform">
-                    <i data-lucide="github" class="w-10 h-10" stroke-width="2.5"></i>
+                <a href="{{ github }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform text-[35px]">
+                    <i class="fa-brands fa-github"></i>
                 </a>
                 {% endif %}
                 
                 {% if linkedin %}
-                <a href="{{ linkedin }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform">
-                    <i data-lucide="linkedin" class="w-10 h-10" stroke-width="2.5"></i>
+                <a href="{{ linkedin }}" target="_blank" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform text-[35px]">
+                    <i class="fa-brands fa-linkedin-in"></i>
                 </a>
                 {% endif %}
 
                 {% if email %}
-                <a href="mailto:{{ email }}" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform">
-                    <i data-lucide="mail" class="w-10 h-10" stroke-width="2.5"></i>
+                <a href="mailto:{{ email }}" class="brutal-btn-alt w-20 h-20 flex items-center justify-center rounded-full hover:scale-110 transition-transform text-[35px]">
+                    <i class="fa-solid fa-envelope"></i>
                 </a>
                 {% endif %}
             </div>
@@ -229,9 +231,6 @@
     </footer>
 
     <script>
-        // Initialize Icons
-        lucide.createIcons();
-
         // Marquee Logic
         const rawSkills = "{{ skills }}";
         const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
