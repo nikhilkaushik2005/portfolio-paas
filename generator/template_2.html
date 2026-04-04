@@ -6,109 +6,343 @@
     <title>{{ name }} | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Classic Hacker Font */
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
         
         body { 
-            font-family: 'Share Tech Mono', monospace; 
-            background-color: #050505;
+            font-family: 'Fira Code', monospace; 
+            background-color: #000000;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #0a1017 0%, transparent 70%),
+                radial-gradient(circle at 50% 100%, #022c22 0%, #000000 80%);
+            background-attachment: fixed;
+            margin: 0;
+            overflow: hidden; /* Locked until BIOS finishes */
         }
 
-        /* The Retro Phosphor Glow */
-        .glow-text { text-shadow: 0 0 4px rgba(34, 197, 94, 0.4); }
+        .glow-text { text-shadow: 0 0 2px rgba(74, 222, 128, 0.4), 0 0 12px rgba(74, 222, 128, 0.1); }
         
-        /* Subtle Scanline Overlay */
-        .scanlines {
-            position: relative;
-        }
-        .scanlines::before {
-            content: " ";
-            display: block;
+        .crt-overlay {
             position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            z-index: 10;
-            background-size: 100% 4px;
+            top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
+            z-index: 50;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E"),
+            linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100px 100px, 100% 3px;
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.95);
         }
 
-        /* Staggered Boot Sequence Animations */
-        .seq-1 { animation: fadeIn 0s 0.5s forwards; opacity: 0; }
-        .seq-2 { animation: fadeIn 0s 1.2s forwards; opacity: 0; }
-        .seq-3 { animation: fadeIn 0s 2.0s forwards; opacity: 0; }
-        .seq-4 { animation: fadeIn 0s 2.8s forwards; opacity: 0; }
-        .seq-5 { animation: fadeIn 0s 3.5s forwards; opacity: 0; }
-        
-        @keyframes fadeIn { to { opacity: 1; } }
+        .flicker { animation: crt-flicker 0.15s infinite; }
+        @keyframes crt-flicker { 0% { opacity: 0.98; } 50% { opacity: 1; } 100% { opacity: 0.99; } }
 
-        /* Blinking Cursor */
-        .cursor { display: inline-block; width: 10px; height: 1.2em; background-color: #22c55e; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 4px; }
-        @keyframes blink { 50% { opacity: 0; } }
+        /* --- STAGE 1: LOCKDOWN (Prevents the Millisecond Flash) --- */
+        #scroll-content, .scroll-block, .cmd-output, #final-prompt { 
+            opacity: 0; 
+            pointer-events: none; 
+        }
+        
+        .cmd-type { visibility: hidden; } 
+        .cmd-type.ready { visibility: visible; }
+
+        .cursor { 
+            display: inline-block; width: 9px; height: 1.2em; 
+            background-color: #4ade80; 
+            animation: blink 1s step-end infinite; 
+            vertical-align: text-bottom; margin-left: 6px;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .term-input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; width: 80%; caret-color: #4ade80; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4ade80; }
+
+        /* THE CURTAIN */
+        #bios-screen {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000; 
+            color: #9ca3af;
+            padding: 3rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: fixed; 
+            inset: 0;
+            z-index: 9999; /* Highest priority */
+            transition: opacity 0.5s ease-out;
+        }
     </style>
 </head>
-<body class="text-green-500 min-h-screen flex items-center justify-center p-4 md:p-8 selection:bg-green-900 selection:text-white">
+<body class="text-green-400 min-h-screen flex items-center justify-center p-4 md:p-8 selection:bg-emerald-500 selection:text-black relative">
 
-    <div class="w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-[0_0_30px_rgba(34,197,94,0.15)] bg-[#0a0a0a] border border-gray-800 relative scanlines">
-        
-        <div class="bg-gray-900 px-4 py-3 flex items-center gap-2 border-b border-gray-800 z-20 relative">
-            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-            <span class="ml-4 text-gray-500 text-sm font-sans tracking-wide">guest@cloud-engine:~</span>
-        </div>
-
-        <div class="p-6 md:p-8 glow-text z-20 relative text-sm md:text-base leading-relaxed">
-            
-            <div class="mb-6">
-                <p class="mb-2"><span class="text-emerald-400 font-bold">guest@engine</span><span class="text-white">:</span><span class="text-blue-400">~</span>$ <span class="text-white">./init_profile.sh --target="{{ name | replace(' ', '_') | lower }}"</span></p>
-                <div class="text-gray-400 ml-4 mb-2">
-                    <p>[OK] Authenticating user...</p>
-                    <p>[OK] Fetching cloud payload...</p>
-                </div>
-                <h1 class="text-3xl md:text-5xl font-bold text-white mb-2 uppercase tracking-wider">> {{ name }}</h1>
-                <p class="text-xl text-green-400">> SYS_ROLE: {{ bio }}</p>
-            </div>
-
-            <div class="mb-6 seq-1">
-                <p class="mb-2"><span class="text-emerald-400 font-bold">guest@engine</span><span class="text-white">:</span><span class="text-blue-400">~</span>$ <span class="text-white">cat /sys/capabilities/skills.json</span></p>
-                <p class="ml-4 text-yellow-300">[{{ skills }}]</p>
-            </div>
-
-            <div class="mb-6 seq-2">
-                <p class="mb-2"><span class="text-emerald-400 font-bold">guest@engine</span><span class="text-white">:</span><span class="text-blue-400">~</span>$ <span class="text-white">ls -la ./deployed_architectures/</span></p>
-                <div class="ml-4 space-y-4 mt-4">
-                    {% for project in projects %}
-                    <div class="border-l-2 border-green-800 pl-4 py-1 hover:border-green-400 transition-colors duration-300">
-                        <p class="font-bold text-white uppercase tracking-wide">{{ project.title }}</p>
-                        <p class="text-gray-400">{{ project.desc }}</p>
-                        <p class="text-emerald-500 mt-1"><span class="text-gray-500">STACK:</span> [{{ project.tech }}]</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="mb-6 seq-3">
-                <p class="mb-2"><span class="text-emerald-400 font-bold">guest@engine</span><span class="text-white">:</span><span class="text-blue-400">~</span>$ <span class="text-white">history | grep "employment"</span></p>
-                <div class="ml-4 mt-4 text-gray-300 space-y-2">
-                    {% for exp in experience %}
-                    <p><span class="text-green-600">[{{ exp.date }}]</span> <span class="text-white font-bold">{{ exp.role }}</span> @ <span class="text-emerald-400">{{ exp.org }}</span></p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="mb-6 seq-4">
-                <p class="mb-2"><span class="text-emerald-400 font-bold">guest@engine</span><span class="text-white">:</span><span class="text-blue-400">~</span>$ <span class="text-white">netstat -an | grep "ping"</span></p>
-                <div class="ml-4 mt-2">
-                    {% if github %}<p class="text-gray-400">TCP <a href="{{ github }}" target="_blank" class="text-blue-400 hover:text-white underline hover:bg-blue-900 transition-colors px-1">{{ github }}</a> (LISTEN)</p>{% endif %}
-                    {% if email %}<p class="text-gray-400">SMTP <a href="mailto:{{ email }}" class="text-yellow-400 hover:text-white underline hover:bg-yellow-900 transition-colors px-1">{{ email }}</a> (ESTABLISHED)</p>{% endif %}
-                </div>
-            </div>
-
-            <div class="mt-8 seq-5">
-                <p><span class="text-emerald-400 font-bold">guest@engine</span><span class="text-white">:</span><span class="text-blue-400">~</span>$ <span class="cursor"></span></p>
-            </div>
-
+    <div id="bios-screen">
+        <div id="bios-content" class="w-full max-w-4xl mx-auto space-y-1">
+            <p>> INITIALIZING SYSTEM BOOT...</p>
         </div>
     </div>
+
+    <div id="main-terminal" class="w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-[0_0_60px_-10px_rgba(16,185,129,0.2)] bg-[#050505]/95 backdrop-blur-md border border-gray-800/80 relative flicker opacity-0 transition-opacity duration-700">
+        <div class="crt-overlay"></div>
+
+        <div class="bg-[#0a0a0c] px-4 py-3 flex items-center gap-2 border-b border-gray-800/80 z-20 relative select-none">
+            <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+            <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+            <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+            <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 15h16M4 9h16M4 21h16a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                <span class="text-xs font-semibold tracking-wider">guest@local ~ zsh</span>
+            </div>
+        </div>
+
+        <div class="p-6 md:p-8 glow-text z-20 relative text-[13px] md:text-[14px] leading-relaxed h-[85vh] md:h-auto overflow-y-auto" id="terminal-container">
+            
+            <div id="scroll-content">
+                <div class="mb-10 scroll-block">
+                    <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~</span></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                        <span class="cmd-type text-white">./init_profile.sh <span class="text-cyan-400">--target</span>=<span class="text-yellow-200">"{{ name | replace(' ', '_') | lower }}"</span></span>
+                    </div>
+                    <div class="cmd-output mt-4 border-l-2 border-emerald-500/30 pl-4 py-1 ml-2">
+                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">{{ name }}</h1>
+                        <p class="text-lg text-emerald-300">SYS_ROLE: {{ bio }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-10 scroll-block">
+                    <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                        <span class="cmd-type text-white">cat <span class="text-cyan-400">/sys/capabilities/skills.json</span></span>
+                    </div>
+                    <p class="cmd-output ml-4 mt-2 text-yellow-200 break-words font-medium">
+                        <span class="text-gray-500">[</span> {{ skills }} <span class="text-gray-500">]</span>
+                    </p>
+                </div>
+
+                <div class="mb-10 scroll-block">
+                    <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                        <span class="cmd-type text-white">ls -la <span class="text-cyan-400">./deployed_architectures/</span></span>
+                    </div>
+                    <div class="cmd-output ml-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for project in projects %}
+                        <div class="group border border-gray-800 bg-[#0a0a0c]/80 p-4 rounded hover:border-emerald-500/50 hover:bg-emerald-900/20 transition-all duration-300 relative overflow-hidden backdrop-blur-sm">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-gray-800 group-hover:bg-emerald-500"></div>
+                            <p class="font-bold text-gray-100 flex items-center justify-between mb-2">
+                                <span>{{ project.title }}</span>
+                                <span class="text-[10px] text-gray-600 font-mono">drwxr-xr-x</span>
+                            </p>
+                            <p class="text-gray-400 text-sm mb-3">{{ project.desc }}</p>
+                            <p class="text-emerald-400/80 text-xs font-mono"><span class="text-gray-600">STACK:</span> {{ project.tech }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-10 scroll-block">
+                    <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                        <span class="cmd-type text-white">history | grep <span class="text-yellow-200">"employment"</span></span>
+                    </div>
+                    <div class="cmd-output ml-4 mt-3 space-y-1">
+                        {% for exp in experience %}
+                        <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 px-2 py-1.5 hover:bg-white/5 transition-colors">
+                            <span class="text-gray-500 text-sm md:w-32 font-mono">[{{ exp.date }}]</span>
+                            <span class="text-gray-100 font-medium md:w-64 truncate">{{ exp.role }}</span>
+                            <span class="text-emerald-500 text-sm">@ {{ exp.org }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-10 scroll-block">
+                    <div class="flex items-center gap-2 mb-2 select-none"><span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                        <span class="cmd-type text-white">curl -O --url <span class="text-cyan-400">"{{ resume_link }}"</span></span>
+                    </div>
+                    <div class="cmd-output ml-4 mt-4 font-mono text-sm border border-gray-700/50 bg-[#050505] p-5 w-full md:w-3/4 rounded-lg relative overflow-hidden group shadow-inner">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-gray-800"><div class="h-full bg-emerald-500 w-full"></div></div>
+                        <div class="flex justify-between text-gray-500 mb-6 text-xs font-bold">
+                            <span>100% Received</span><span>2.4M</span><span>0:00:00</span>
+                        </div>
+                        <p class="text-gray-400 text-xs mb-4">File: <span class="text-white font-bold">resume_latest.pdf</span></p>
+                        <a href="{{ resume_link }}" target="_blank" class="relative block w-full text-center bg-emerald-900/30 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 font-bold py-3 rounded transition-all duration-300">
+                             [ EXECUTE_RESUME.PDF ]
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="interactive-area"></div>
+            
+            <div class="mt-4 pt-4 opacity-0 transition-opacity duration-1000" id="final-prompt">
+                <div class="flex items-center gap-2 mb-2 select-none">
+                    <span class="text-emerald-400 font-bold">╭─guest</span><span class="text-gray-500">in</span><span class="text-blue-400 font-bold">~/portfolio</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
+                    <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const terminalContainer = document.getElementById('terminal-container');
+            const scrollContent = document.getElementById('scroll-content');
+            const finalPrompt = document.getElementById('final-prompt');
+            const biosScreen = document.getElementById('bios-screen');
+            const mainTerminal = document.getElementById('main-terminal');
+            const biosContainer = document.getElementById('bios-content');
+
+            // Hard reset scroll
+            window.scrollTo(0,0);
+            terminalContainer.scrollTop = 0;
+
+            // 1. Pre-process text immediately
+            try { prepareAllTyping(); } catch(e) { console.error("Prep failed", e); }
+
+            const biosLines = [
+                "CPU Initializing: Intel(R) Core(TM) i9-12900K",
+                "Memory Check: 65536MB OK",
+                "Establishing secure cloud link.........[OK]",
+                "Kernel modules loaded..................[OK]",
+                "Fetching payload for: {{ name }}",
+                "Starting interactive ZSH shell..."
+            ];
+            
+            async function runBios() {
+                try {
+                    for (let line of biosLines) {
+                        const p = document.createElement('p');
+                        p.textContent = "> " + line;
+                        biosContainer.appendChild(p);
+                        await new Promise(r => setTimeout(r, Math.random() * 40 + 20));
+                    }
+                } catch(e) { console.error("BIOS loop error", e); }
+                
+                await new Promise(r => setTimeout(r, 600));
+                exitBios();
+            }
+
+            function exitBios() {
+                biosScreen.style.opacity = '0';
+                setTimeout(() => {
+                    biosScreen.style.display = 'none';
+                    mainTerminal.style.opacity = '1';
+                    document.body.style.overflow = 'auto'; 
+                    
+                    scrollContent.style.opacity = '1';
+                    scrollContent.style.pointerEvents = 'auto';
+                    
+                    terminalContainer.scrollTop = 0;
+                    startScrollAnimations();
+                }, 500);
+            }
+
+            // Fallback: If BIOS is still there after 5 seconds, force exit
+            setTimeout(() => {
+                if(biosScreen.style.display !== 'none') exitBios();
+            }, 5000);
+
+            function prepareAllTyping() {
+                document.querySelectorAll('.cmd-type').forEach(cmd => {
+                    const walker = document.createTreeWalker(cmd, NodeFilter.SHOW_TEXT, null, false);
+                    const nodes = [];
+                    let node;
+                    while ((node = walker.nextNode())) nodes.push(node);
+                    nodes.forEach(n => {
+                        const text = n.nodeValue;
+                        if (text.trim() === '' && text.includes('\n')) return;
+                        const fragment = document.createDocumentFragment();
+                        for (let char of text) {
+                            const span = document.createElement('span');
+                            span.textContent = char;
+                            span.style.opacity = '0';
+                            span.className = 'type-char';
+                            fragment.appendChild(span);
+                        }
+                        n.parentNode.replaceChild(fragment, n);
+                    });
+                    cmd.classList.add('ready'); 
+                });
+            }
+
+            function startScrollAnimations() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !entry.target.classList.contains('executed')) {
+                            entry.target.classList.add('executed');
+                            entry.target.style.opacity = '1'; 
+                            entry.target.style.pointerEvents = 'auto';
+                            runTerminalSequence(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.scroll-block').forEach(block => observer.observe(block));
+            }
+
+            async function runTerminalSequence(block) {
+                const cmd = block.querySelector('.cmd-type');
+                const chars = block.querySelectorAll('.type-char');
+                const cursor = document.createElement('span');
+                cursor.className = 'cursor';
+                if (cmd) cmd.appendChild(cursor);
+
+                for(let char of chars) {
+                    char.style.opacity = '1';
+                    await new Promise(r => setTimeout(r, Math.random() * 12 + 5));
+                }
+                
+                await new Promise(r => setTimeout(r, 100));
+                cursor.remove();
+                const out = block.querySelector('.cmd-output');
+                if(out) { 
+                    out.style.opacity = '1'; 
+                    out.style.transform = 'translateY(0)'; 
+                    out.style.pointerEvents = 'auto';
+                }
+
+                const allBlocks = [...document.querySelectorAll('.scroll-block')];
+                if (block === allBlocks[allBlocks.length - 1]) {
+                    finalPrompt.style.opacity = '1';
+                    finalPrompt.style.pointerEvents = 'auto';
+                    document.getElementById('term-input').focus({ preventScroll: true });
+                }
+            }
+
+            /* --- SHELL ENGINE --- */
+            const termInput = document.getElementById('term-input');
+            const interactiveArea = document.getElementById('interactive-area');
+
+            terminalContainer.addEventListener('click', () => termInput.focus({ preventScroll: true }));
+
+            termInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const cmd = this.value.trim().toLowerCase();
+                    this.value = '';
+                    interactiveArea.insertAdjacentHTML('beforeend', `<div class="mt-4"><div class="flex gap-2"><span>╭─guest</span></div><div class="flex gap-2"><span>╰─❯</span><span class="text-white">${cmd}</span></div></div>`);
+                    
+                    if(cmd === 'help') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-gray-400">Commands: whoami, contact, help, clear, sudo</div>`);
+                    if(cmd === 'whoami') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-yellow-200">guest_user_v1.0</div>`);
+                    if(cmd === 'sudo') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-red-500 font-bold">Permission Denied.</div>`);
+                    if(cmd === 'contact') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-emerald-400">Email: <a href="mailto:{{ email }}">{{ email }}</a></div>`);
+                    if(cmd === 'clear') { document.getElementById('scroll-content').innerHTML = ''; interactiveArea.innerHTML = ''; }
+                    
+                    terminalContainer.scrollTop = terminalContainer.scrollHeight;
+                }
+            });
+
+            runBios();
+        });
+    </script>
 </body>
 </html>
