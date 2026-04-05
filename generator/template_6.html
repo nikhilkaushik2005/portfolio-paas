@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} | Index</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: none; 
+            
+            /* The Engineering Grid */
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+        }
+
+        /* Precision Crosshair Cursor */
+        #crosshair {
+            position: fixed; top: 0; left: 0; width: 24px; height: 24px; pointer-events: none;
+            z-index: 10000; transform: translate(-50%, -50%); transition: transform 0.1s ease-out;
+        }
+        #crosshair::before, #crosshair::after { content: ''; position: absolute; background-color: #000; }
+        #crosshair::before { top: 0; bottom: 0; left: 11px; width: 1px; }
+        #crosshair::after { left: 0; right: 0; top: 11px; height: 1px; }
+
+        /* Reading Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background-color: #000;
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+
+        /* Butter-smooth Reveal */
+        .reveal-up {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-up.visible { opacity: 1; transform: translateY(0); }
+
+        /* Technical Link Underline */
+        .link-hover { position: relative; display: inline-flex; align-items: center; gap: 4px; cursor: none; }
+        .link-hover::after {
+            content: ''; position: absolute; width: 100%; height: 1px; bottom: -2px; left: 0;
+            background-color: #000; transform: scaleX(0); transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .link-hover:hover::after { transform: scaleX(1); transform-origin: left; }
+        
+        /* Grid Borders for Sections */
+        .ledger-row { border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .ledger-row:first-child { border-top: 1px solid rgba(0,0,0,0.08); }
+
+        /* Magnetic Card Hover */
+        .magnetic-card {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+        }
+        .magnetic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+            z-index: 10;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="selection:bg-black selection:text-white">
+
+    <div id="progress-bar"></div>
+    <div id="crosshair" class="hidden md:block"></div>
+
+    <div class="max-w-[1500px] mx-auto px-6 md:px-12 flex flex-col lg:flex-row relative z-10">
+        
+        <header class="lg:w-5/12 lg:sticky lg:top-0 lg:h-screen py-16 md:py-24 flex flex-col justify-between border-r-0 lg:border-r border-gray-200/60 lg:pr-16 bg-white/40 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none z-20">
+            
+            <div class="reveal-up">
+                <div class="flex justify-between items-start mb-12">
+                    <h1 class="text-4xl md:text-5xl font-medium tracking-tight bg-white inline-block pr-2">
+                        {{ name }}
+                    </h1>
+                    <div id="live-clock" class="text-[10px] uppercase tracking-widest text-gray-500 tabular-nums bg-white px-2 py-1 border border-gray-100 rounded">
+                        --:--:-- IST
+                    </div>
+                </div>
+
+                <div class="bg-white/80 p-4 -mx-4 rounded-sm">
+                    <h2 class="text-[10px] uppercase tracking-widest text-gray-400 mb-3">About</h2>
+                    <p class="text-lg md:text-xl text-gray-700 font-light leading-relaxed max-w-md">
+                        {{ bio }}
+                    </p>
+                </div>
+                
+                <nav class="hidden lg:flex flex-col mt-16 text-xs uppercase tracking-widest font-medium text-gray-400 bg-white/80 p-4 -mx-4 rounded-sm">
+                    <a href="#expertise" class="ledger-row py-3 hover:text-black transition-colors flex justify-between group" style="cursor: none;">
+                        <span>01 / Skills</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">&rarr;</span>
+                    </a>
+                    <a href="#projects" class="ledger-row py-3 hover:text-black transition-colors flex justify-between group" style="cursor: none;">
+                        <span>02 / Project Index</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">&rarr;</span>
+                    </a>
+                    <a href="#experience" class="ledger-row py-3 hover:text-black transition-colors flex justify-between group" style="cursor: none;">
+                        <span>03 / Experience</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity">&rarr;</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="mt-16 lg:mt-0 flex flex-col gap-6 reveal-up">
+                <div class="flex flex-wrap gap-6 text-sm font-medium bg-white inline-block p-2 -ml-2 rounded-sm">
+                    {% if email %}
+                    <a href="mailto:{{ email }}" class="link-hover text-gray-600 hover:text-black">Output: Email</a>
+                    {% endif %}
+                    
+                    {% if github %}
+                    <a href="{{ github }}" target="_blank" class="link-hover text-gray-600 hover:text-black">Repo: GitHub</a>
+                    {% endif %}
+                    
+                    {% if linkedin %}
+                    <a href="{{ linkedin }}" target="_blank" class="link-hover text-gray-600 hover:text-black">Net: LinkedIn</a>
+                    {% endif %}
+                    
+                    {% if resume %}
+                    <a href="{{ resume }}" target="_blank" class="link-hover text-gray-600 hover:text-black">Doc: Resume</a>
+                    {% endif %}
+                </div>
+                
+                <div class="hidden lg:block text-[10px] text-gray-400 uppercase tracking-widest bg-white/80 p-2 -ml-2 rounded-sm">
+                    Infrastructure Provisioned via <span class="font-bold text-gray-600">AutoFolio Engine</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="lg:w-7/12 py-16 md:py-24 lg:pl-16 space-y-32">
+            
+            <section id="expertise" class="reveal-up pt-10">
+                <h2 class="text-xs uppercase tracking-widest text-gray-400 mb-8 bg-white inline-block pr-2">Skills</h2>
+                <div id="skills-container" class="flex flex-wrap gap-3">
+                    </div>
+            </section>
+
+            <section id="projects" class="reveal-up pt-10">
+                <h2 class="text-xs uppercase tracking-widest text-gray-400 mb-8 bg-white inline-block pr-2">Selected Works</h2>
+                
+                <div class="flex flex-col bg-white/80 p-6 -mx-6 rounded-sm shadow-[0_4px_30px_rgba(0,0,0,0.01)]">
+                    {% for project in projects %}
+                    <article class="ledger-row py-8 group reveal-up magnetic-card px-4 -mx-4 rounded border border-transparent hover:border-gray-200">
+                        <div class="flex flex-col md:flex-row md:items-baseline justify-between mb-3 gap-2">
+                            <h3 class="text-xl font-medium text-black group-hover:translate-x-2 transition-transform duration-300">{{ project.title }}</h3>
+                            <span class="text-[10px] uppercase tracking-widest text-gray-400 font-medium border border-gray-200 px-2 py-1 rounded-sm bg-white">{{ project.tech }}</span>
+                        </div>
+                        <p class="text-gray-500 font-light leading-relaxed text-sm md:text-base">
+                            {{ project.desc }}
+                        </p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section id="experience" class="reveal-up pt-10 pb-10">
+                <h2 class="text-xs uppercase tracking-widest text-gray-400 mb-8 bg-white inline-block pr-2">Experience</h2>
+                
+                <div class="flex flex-col bg-white/80 p-6 -mx-6 rounded-sm shadow-[0_4px_30px_rgba(0,0,0,0.01)]">
+                    {% for exp in experience %}
+                    <article class="ledger-row py-6 flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8 reveal-up group magnetic-card px-4 -mx-4 rounded border border-transparent hover:border-gray-200">
+                        <div class="md:w-1/4 text-xs tracking-widest text-gray-400 font-medium font-mono">
+                            {{ exp.date }}
+                        </div>
+                        <div class="md:w-3/4 flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1">
+                            <h4 class="text-base font-medium text-black">{{ exp.role }}</h4>
+                            <p class="text-gray-500 font-light text-sm">{{ exp.org }}</p>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <footer class="lg:hidden text-[10px] text-gray-400 uppercase tracking-widest border-t border-gray-200/60 pt-8 reveal-up text-center bg-white/80 p-4 rounded-sm">
+                Infrastructure Provisioned via <span class="font-bold text-gray-600">AutoFolio Engine</span>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        // Progress Bar Logic
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + "%";
+        });
+
+        // Precision Crosshair Logic
+        const crosshair = document.getElementById('crosshair');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                requestAnimationFrame(() => {
+                    crosshair.style.left = e.clientX + 'px';
+                    crosshair.style.top = e.clientY + 'px';
+                });
+            });
+            document.addEventListener('mousedown', () => { crosshair.style.transform = 'translate(-50%, -50%) rotate(45deg)'; });
+            document.addEventListener('mouseup', () => { crosshair.style.transform = 'translate(-50%, -50%) rotate(0deg)'; });
+        }
+
+        // Live Clock Logic (IST format for technical aesthetic)
+        function updateClock() {
+            const now = new Date();
+            const options = { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString('en-US', options) + ' IST';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Technical Tags for Skills
+        const skillsContainer = document.getElementById('skills-container');
+        const rawSkills = "{{ skills }}";
+        const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
+        
+        skillsArray.forEach(skill => {
+            const span = document.createElement('span');
+            span.className = "border border-gray-200 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-sm text-xs font-medium text-gray-600 hover:border-black hover:text-black hover:-translate-y-1 transition-all cursor-default shadow-sm hover:shadow-md";
+            span.innerText = skill;
+            skillsContainer.appendChild(span);
+        });
+
+        // Intersection Observer for scroll reveal
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => { 
+                if (entry.isIntersecting) { 
+                    entry.target.classList.add('visible'); 
+                    obs.unobserve(entry.target); 
+                } 
+            });
+        }, { root: null, rootMargin: '0px', threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
