@@ -198,9 +198,9 @@
                     <div id="projects-container" class="space-y-5">
                         <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
                             <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
-                            <input type="text" placeholder="Project Title" class="proj-title w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
-                            <input type="text" placeholder="Tech Stack" class="proj-tech w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
-                            <input type="text" placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
+                            <input type="text" placeholder="Project Title" class="proj-title self-start w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
+                            <input type="text" placeholder="Tech Stack" class="proj-tech self-start w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
+                            <textarea placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg resize-none overflow-hidden" rows="2" oninput="autoResize(this)" required></textarea>
                         </div>
                     </div>
                 </div>
@@ -271,6 +271,12 @@
     </div>
 
     <script>
+        // --- DYNAMIC TEXTAREA AUTO-RESIZE ---
+        function autoResize(el) {
+            el.style.height = 'auto'; // Reset height
+            el.style.height = (el.scrollHeight) + 'px'; // Set to actual scroll height
+        }
+
         // --- UPGRADE 3: MAGNETIC BUTTON LOGIC ---
         const magnetBtn = document.getElementById('deployBtn');
         magnetBtn.addEventListener('mousemove', (e) => {
@@ -296,9 +302,9 @@
             const html = `
                 <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
                     <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
-                    <input type="text" placeholder="Project Title" class="proj-title w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
-                    <input type="text" placeholder="Tech Stack" class="proj-tech w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
-                    <input type="text" placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
+                    <input type="text" placeholder="Project Title" class="proj-title self-start w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
+                    <input type="text" placeholder="Tech Stack" class="proj-tech self-start w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
+                    <textarea placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg resize-none overflow-hidden" rows="2" oninput="autoResize(this)" required></textarea>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
         }
@@ -308,9 +314,9 @@
             const html = `
                 <div class="exp-entry grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
                     <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
-                    <input type="text" placeholder="Role" class="exp-role w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
+                    <input type="text" placeholder="Role (e.g. Intern)" class="exp-role w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                     <input type="text" placeholder="Organization" class="exp-org w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
-                    <input type="text" placeholder="Duration" class="exp-date w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
+                    <input type="text" placeholder="Duration (e.g. 2025 - Present)" class="exp-date w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
         }
@@ -333,7 +339,7 @@
             document.getElementById('resultBanner').classList.add('translate-y-full');
         }
 
-        // --- UPGRADE 2: FAKE TERMINAL LOGS ARRAY ---
+        // --- FAKE TERMINAL LOGS ARRAY ---
         const fakeLogs = [
             "[AWS] Authenticating IAM Roles via STS...",
             "[S3] Provisioning isolated bucket environment...",
