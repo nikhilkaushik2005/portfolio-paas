@@ -293,26 +293,26 @@
             el.style.height = (el.scrollHeight) + 'px'; 
         }
 
-        // --- NEW: ADVANCED IMAGE UPLOAD LOGIC (FIXED) ---
+       // --- ADVANCED IMAGE UPLOAD LOGIC (APPEND MODE) ---
         function handleImageUpload(input) {
             const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
             
-            // Initialize a custom tracking array directly on the input element
+            // 1. Initialize a custom tracking array directly on the input element
             if (!input.currentFiles) {
                 input.currentFiles = [];
             }
             
-            // Safely grab newly selected files and push them into our tracker
+            // 2. Safely grab newly selected files and append them to our tracker
             const newFiles = Array.from(input.files);
             input.currentFiles = input.currentFiles.concat(newFiles);
             
-            // Hard limit: Discard anything over 3
+            // 3. Hard limit: Discard anything over 3
             if (input.currentFiles.length > 3) {
                 alert("You can only attach a maximum of 3 images per project. Excess images were discarded.");
                 input.currentFiles = input.currentFiles.slice(0, 3);
             }
             
-            // Update UI & Sync
+            // 4. Update UI & Sync
             syncInputFiles(input);
             renderImagePreviews(input, previewContainer);
         }
@@ -329,7 +329,7 @@
 
         function syncInputFiles(input) {
             // Because input.files is read-only, we must use a DataTransfer object 
-            // to "re-pack" the files so the backend form submission picks them all up perfectly.
+            // to "re-pack" the files so the backend form submission picks them all up.
             const dt = new DataTransfer();
             input.currentFiles.forEach(file => dt.items.add(file));
             input.files = dt.files;
@@ -365,6 +365,7 @@
                     delBtn.type = 'button';
                     delBtn.className = 'absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 hover:scale-110';
                     delBtn.innerText = '✕';
+                    
                     // Pass the input element and the specific array index to remove
                     delBtn.onclick = (event) => {
                         event.preventDefault(); 
