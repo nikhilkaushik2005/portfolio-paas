@@ -293,22 +293,54 @@
             el.style.height = (el.scrollHeight) + 'px'; 
         }
 
-        // --- IMAGE UPLOAD LOGIC & INDIVIDUAL REMOVAL ---
+        // --- NEW: ADVANCED IMAGE UPLOAD LOGIC (FIXED) ---
         function handleImageUpload(input) {
             const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
-            let files = Array.from(input.files);
             
-            if (files.length > 3) {
-                alert("You can only attach a maximum of 3 images per project.");
-                const dt = new DataTransfer();
-                files.slice(0, 3).forEach(f => dt.items.add(f));
-                input.files = dt.files;
-                files = Array.from(input.files);
+            // Initialize a custom tracking array directly on the input element
+            if (!input.currentFiles) {
+                input.currentFiles = [];
             }
             
+            // Safely grab newly selected files and push them into our tracker
+            const newFiles = Array.from(input.files);
+            input.currentFiles = input.currentFiles.concat(newFiles);
+            
+            // Hard limit: Discard anything over 3
+            if (input.currentFiles.length > 3) {
+                alert("You can only attach a maximum of 3 images per project. Excess images were discarded.");
+                input.currentFiles = input.currentFiles.slice(0, 3);
+            }
+            
+            // Update UI & Sync
+            syncInputFiles(input);
+            renderImagePreviews(input, previewContainer);
+        }
+
+        function removeSpecificImage(input, indexToRemove) {
+            // Remove the specific file from our custom tracking array
+            input.currentFiles.splice(indexToRemove, 1);
+            
+            // Update UI & Sync
+            const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
+            syncInputFiles(input);
+            renderImagePreviews(input, previewContainer);
+        }
+
+        function syncInputFiles(input) {
+            // Because input.files is read-only, we must use a DataTransfer object 
+            // to "re-pack" the files so the backend form submission picks them all up perfectly.
+            const dt = new DataTransfer();
+            input.currentFiles.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+        }
+
+        function renderImagePreviews(input, previewContainer) {
             const dropLabel = input.closest('.dropzone-label');
             const icon = dropLabel.querySelector('.dropzone-icon');
-            if(files.length > 0) {
+            
+            // UI Feedback: Glow blue when files are loaded
+            if(input.currentFiles.length > 0) {
                 dropLabel.classList.add('border-cyan-500', 'bg-slate-800/80');
                 icon.classList.add('text-cyan-400');
             } else {
@@ -316,9 +348,10 @@
                 icon.classList.remove('text-cyan-400');
             }
             
-            previewContainer.innerHTML = '';
+            previewContainer.innerHTML = ''; // Wipe previews clean
             
-            files.forEach((file, index) => {
+            // Rebuild previews from the tracking array
+            input.currentFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const wrapper = document.createElement('div');
@@ -332,6 +365,7 @@
                     delBtn.type = 'button';
                     delBtn.className = 'absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 hover:scale-110';
                     delBtn.innerText = '✕';
+                    // Pass the input element and the specific array index to remove
                     delBtn.onclick = (event) => {
                         event.preventDefault(); 
                         removeSpecificImage(input, index);
@@ -344,20 +378,7 @@
                 reader.readAsDataURL(file);
             });
         }
-
-        function removeSpecificImage(input, indexToRemove) {
-            const dt = new DataTransfer();
-            const files = Array.from(input.files);
-            
-            files.forEach((file, index) => {
-                if (index !== indexToRemove) {
-                    dt.items.add(file);
-                }
-            });
-            
-            input.files = dt.files;
-            handleImageUpload(input);
-        }
+        // --- END IMAGE UPLOAD LOGIC ---
 
         // --- MAGNETIC BUTTON LOGIC ---
         const magnetBtn = document.getElementById('deployBtn');
