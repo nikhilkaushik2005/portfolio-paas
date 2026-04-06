@@ -135,19 +135,61 @@
             
             <div class="flex flex-col">
                 {% for project in projects %}
-                <article class="group relative hairline-b py-12 md:py-16 reveal flex flex-col md:flex-row justify-between items-start md:items-center gap-8 hover:bg-white/5 transition-colors px-4 -mx-4 rounded-xl cursor-pointer">
+                <article class="group relative hairline-b py-12 md:py-24 reveal flex flex-col hover:bg-white/5 transition-colors px-4 md:px-8 -mx-4 md:-mx-8 rounded-xl cursor-default">
                     
-                    <div class="md:w-1/2 flex gap-8 items-baseline">
-                        <span class="text-sm font-light text-[var(--text-muted)] opacity-50 group-hover:opacity-100 transition-opacity">0{{ loop.index }}</span>
-                        <div>
-                            <h3 class="text-3xl md:text-5xl tracking-tight mb-3 serif group-hover:italic group-hover:translate-x-4 transition-all duration-500">{{ project.title }}</h3>
-                            <p class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">{{ project.tech }}</p>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 w-full z-10 relative">
+                        <div class="md:w-1/2 flex gap-8 items-baseline">
+                            <span class="text-sm font-light text-[var(--text-muted)] opacity-50 group-hover:opacity-100 transition-opacity">0{{ loop.index }}</span>
+                            <div>
+                                <h3 class="text-4xl md:text-6xl tracking-tight mb-3 serif group-hover:italic group-hover:translate-x-4 transition-all duration-500">{{ project.title }}</h3>
+                                <p class="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">{{ project.tech }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-5/12">
+                            <p class="text-sm md:text-base font-light text-[var(--text-muted)] leading-relaxed group-hover:text-[var(--text-main)] transition-colors duration-500">{{ project.desc }}</p>
                         </div>
                     </div>
-                    
-                    <div class="md:w-5/12">
-                        <p class="text-sm md:text-base font-light text-[var(--text-muted)] leading-relaxed group-hover:text-[var(--text-main)] transition-colors duration-500">{{ project.desc }}</p>
+
+                    {% if project.images and project.images|length > 0 %}
+                    <div class="w-full mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 pointer-events-none">
+                        
+                        {% if project.images|length == 1 %}
+                            <div class="md:col-span-10 md:col-start-2 border border-[var(--line-color)] overflow-hidden">
+                                <img src="{{ project.images[0] }}" class="w-full aspect-[21/9] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
+                            </div>
+
+                        {% elif project.images|length == 2 %}
+                            <div class="md:col-span-7 border border-[var(--line-color)] overflow-hidden">
+                                <img src="{{ project.images[0] }}" class="w-full aspect-[4/3] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
+                            </div>
+                            <div class="md:col-span-5 md:pt-32 border border-transparent overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                    <img src="{{ project.images[1] }}" class="w-full aspect-[3/4] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
+                                </div>
+                            </div>
+
+                        {% else %}
+                            <div class="md:col-span-4 border border-transparent overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                    <img src="{{ project.images[0] }}" class="w-full aspect-[3/4] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
+                                </div>
+                            </div>
+                            <div class="md:col-span-5 md:pt-16 border border-transparent overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                    <img src="{{ project.images[1] }}" class="w-full aspect-square object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out delay-75">
+                                </div>
+                            </div>
+                            <div class="md:col-span-3 md:pt-40 border border-transparent overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                    <img src="{{ project.images[2] }}" class="w-full aspect-[4/5] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out delay-150">
+                                </div>
+                            </div>
+                        {% endif %}
+
                     </div>
+                    {% endif %}
+                    
                 </article>
                 {% endfor %}
             </div>
@@ -223,16 +265,13 @@
                   MouseConstraint = Matter.MouseConstraint,
                   Events = Matter.Events;
 
-            // Create engine
             const engine = Engine.create();
-            // Lighter gravity to make it feel ethereal at first
             engine.world.gravity.y = 0.4;
 
             const container = document.getElementById('physics-canvas');
             const width = container.clientWidth;
             const height = container.clientHeight;
 
-            // Create renderer
             const render = Render.create({
                 element: container,
                 engine: engine,
@@ -245,13 +284,11 @@
                 }
             });
 
-            // Styling variables
             const colorStatic = 'rgba(227, 222, 213, 0.1)';
             const colorParticle = '#e3ded5';
 
             const staticBodies = [];
 
-            // --- Phase II: Creation (The Plinko Obstacles) ---
             const rows = 4;
             const cols = 6;
             const startY = height * 0.35;
@@ -269,7 +306,6 @@
                 }
             }
 
-            // --- Phase III: Execution (The Funnel) ---
             const wallOptions = { isStatic: true, render: { fillStyle: colorStatic } };
             const funnelLeft = Bodies.rectangle(width * 0.2, height * 0.85, width * 0.5, 20, { 
                 ...wallOptions, angle: Math.PI / 6 
@@ -281,7 +317,6 @@
 
             Composite.add(engine.world, staticBodies);
 
-            // Add Mouse Interaction
             const mouse = Mouse.create(render.canvas);
             const mouseConstraint = MouseConstraint.create(engine, {
                 mouse: mouse,
@@ -293,16 +328,13 @@
             Composite.add(engine.world, mouseConstraint);
             render.mouse = mouse; 
 
-            // SCROLL FIX: Prevent Matter.js from hijacking the scroll wheel
             mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
             mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
 
-            // Start Physics
             Render.run(render);
             const runner = Runner.create();
             Runner.run(runner, engine);
 
-            // Function to spawn a new particle
             const spawnParticle = () => {
                 const xPos = (Math.random() * (width * 0.8)) + (width * 0.1);
                 const size = Math.random() * 10 + 5; 
@@ -320,12 +352,10 @@
                 Composite.add(engine.world, particle);
             };
 
-            // Spawn Button Logic
             document.getElementById('btn-spawn').addEventListener('click', () => {
                 for(let i=0; i<3; i++) setTimeout(spawnParticle, i * 100);
             });
 
-            // Initial stream of particles
             let initialStream = 0;
             const streamInterval = setInterval(() => {
                 spawnParticle();
@@ -333,7 +363,6 @@
                 if(initialStream > 15) clearInterval(streamInterval);
             }, 400);
 
-            // Cleanup loop
             Events.on(engine, 'beforeUpdate', function() {
                 const bodies = Composite.allBodies(engine.world);
                 for (let i = 0; i < bodies.length; i++) {
@@ -344,20 +373,15 @@
                 }
             });
 
-            // Handle Resize
             window.addEventListener('resize', () => {
                 render.canvas.width = container.clientWidth;
                 render.canvas.height = container.clientHeight;
             });
         };
 
-        // Initialize physics once window loads
         window.addEventListener('load', initPhysics);
 
-
         // --- 2. STANDARD PORTFOLIO LOGIC ---
-        
-        // Skill Injection
         const skillsContainer = document.getElementById('skills-container');
         const rawSkills = "{{ skills }}";
         const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
@@ -376,7 +400,6 @@
             }
         });
 
-        // Intersection Observer for scroll animations
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => { 
                 if (entry.isIntersecting) { 

@@ -29,7 +29,7 @@
         /* Precision Crosshair Cursor */
         #crosshair {
             position: fixed; top: 0; left: 0; width: 24px; height: 24px; pointer-events: none;
-            z-index: 10000; transform: translate(-50%, -50%); transition: transform 0.1s ease-out;
+            z-index: 100000; transform: translate(-50%, -50%); transition: transform 0.1s ease-out;
         }
         #crosshair::before, #crosshair::after { content: ''; position: absolute; background-color: #000; }
         #crosshair::before { top: 0; bottom: 0; left: 11px; width: 1px; }
@@ -160,6 +160,7 @@
                 
                 <div class="flex flex-col bg-white/80 p-6 -mx-6 rounded-sm shadow-[0_4px_30px_rgba(0,0,0,0.01)]">
                     {% for project in projects %}
+                    {% set proj_id = loop.index %}
                     <article class="ledger-row py-8 group reveal-up magnetic-card px-4 -mx-4 rounded border border-transparent hover:border-gray-200">
                         <div class="flex flex-col md:flex-row md:items-baseline justify-between mb-3 gap-2">
                             <h3 class="text-xl font-medium text-black group-hover:translate-x-2 transition-transform duration-300">{{ project.title }}</h3>
@@ -168,6 +169,33 @@
                         <p class="text-gray-500 font-light leading-relaxed text-sm md:text-base">
                             {{ project.desc }}
                         </p>
+
+                        {% if project.images and project.images|length > 0 %}
+                        <div class="mt-8 bg-white border border-gray-200 p-2 rounded-sm flex flex-col gap-2">
+                            
+                            <div class="relative w-full h-56 md:h-80 bg-gray-50 overflow-hidden border border-gray-100 group">
+                                {% for image in project.images %}
+                                <img id="viewport-{{ proj_id }}-img-{{ loop.index }}" src="{{ image }}" alt="Project Diagram" 
+                                     class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out {% if loop.first %}opacity-100 pointer-events-auto{% else %}opacity-0 pointer-events-none{% endif %}">
+                                {% endfor %}
+                            </div>
+
+                            {% if project.images|length > 1 %}
+                            <div class="flex gap-2">
+                                {% for image in project.images %}
+                                <button onclick="swapViewport('{{ proj_id }}', {{ loop.index }}, {{ project.images|length }})" 
+                                        id="viewport-{{ proj_id }}-btn-{{ loop.index }}"
+                                        class="flex-1 py-2 text-[10px] uppercase tracking-widest font-mono border transition-all duration-200 ease-out {% if loop.first %}bg-black text-white border-black{% else %}bg-transparent text-gray-500 border-gray-200 hover:border-gray-400 hover:text-black{% endif %}"
+                                        style="cursor: none;">
+                                    FIG. 0{{ loop.index }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                        </div>
+                        {% endif %}
+
                     </article>
                     {% endfor %}
                 </div>
@@ -199,6 +227,39 @@
     </div>
 
     <script>
+        // --- Viewport Swap Logic ---
+        function swapViewport(projectId, targetIndex, totalImages) {
+            for(let i = 1; i <= totalImages; i++) {
+                // Fade out all images and disable pointer events
+                const img = document.getElementById(`viewport-${projectId}-img-${i}`);
+                if(img) {
+                    img.classList.remove('opacity-100', 'pointer-events-auto');
+                    img.classList.add('opacity-0', 'pointer-events-none');
+                }
+                
+                // Reset all buttons to inactive state
+                const btn = document.getElementById(`viewport-${projectId}-btn-${i}`);
+                if(btn) {
+                    btn.classList.remove('bg-black', 'text-white', 'border-black');
+                    btn.classList.add('bg-transparent', 'text-gray-500', 'border-gray-200');
+                }
+            }
+            
+            // Fade in target image and enable pointer events
+            const targetImg = document.getElementById(`viewport-${projectId}-img-${targetIndex}`);
+            if(targetImg) {
+                targetImg.classList.remove('opacity-0', 'pointer-events-none');
+                targetImg.classList.add('opacity-100', 'pointer-events-auto');
+            }
+            
+            // Highlight target button
+            const targetBtn = document.getElementById(`viewport-${projectId}-btn-${targetIndex}`);
+            if(targetBtn) {
+                targetBtn.classList.remove('bg-transparent', 'text-gray-500', 'border-gray-200');
+                targetBtn.classList.add('bg-black', 'text-white', 'border-black');
+            }
+        }
+
         // Progress Bar Logic
         window.addEventListener('scroll', () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;

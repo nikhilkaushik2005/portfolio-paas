@@ -196,12 +196,28 @@
                         </button>
                     </div>
                     <div id="projects-container" class="space-y-5">
+                        
                         <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
                             <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
                             <input type="text" placeholder="Project Title" class="proj-title self-start w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                             <input type="text" placeholder="Tech Stack" class="proj-tech self-start w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                             <textarea placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg resize-none overflow-hidden" rows="2" oninput="autoResize(this)" required></textarea>
+                            
+                            <div class="md:col-span-12 mt-2 pt-4 border-t border-slate-700/50">
+                                <label class="block text-sm text-slate-400 mb-3 uppercase tracking-wide">Project Imagery <span class="text-slate-500 normal-case tracking-normal ml-1">- Optional (Max 3)</span></label>
+                                <div class="flex items-center justify-center w-full">
+                                    <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-900/40 hover:bg-slate-800/80 hover:border-cyan-500 transition-all dropzone-label">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <svg class="w-7 h-7 text-slate-400 mb-2 transition-colors dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                            <p class="text-xs text-slate-400"><span class="font-bold text-cyan-400">Click to attach</span> high-res screenshots</p>
+                                        </div>
+                                        <input type="file" class="hidden proj-images" accept="image/*" multiple onchange="handleImageUpload(this)" />
+                                    </label>
+                                </div>
+                                <div class="image-preview-container flex flex-wrap gap-3 mt-4 empty:hidden"></div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -273,11 +289,77 @@
     <script>
         // --- DYNAMIC TEXTAREA AUTO-RESIZE ---
         function autoResize(el) {
-            el.style.height = 'auto'; // Reset height
-            el.style.height = (el.scrollHeight) + 'px'; // Set to actual scroll height
+            el.style.height = 'auto'; 
+            el.style.height = (el.scrollHeight) + 'px'; 
         }
 
-        // --- UPGRADE 3: MAGNETIC BUTTON LOGIC ---
+        // --- IMAGE UPLOAD LOGIC & INDIVIDUAL REMOVAL ---
+        function handleImageUpload(input) {
+            const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
+            let files = Array.from(input.files);
+            
+            if (files.length > 3) {
+                alert("You can only attach a maximum of 3 images per project.");
+                const dt = new DataTransfer();
+                files.slice(0, 3).forEach(f => dt.items.add(f));
+                input.files = dt.files;
+                files = Array.from(input.files);
+            }
+            
+            const dropLabel = input.closest('.dropzone-label');
+            const icon = dropLabel.querySelector('.dropzone-icon');
+            if(files.length > 0) {
+                dropLabel.classList.add('border-cyan-500', 'bg-slate-800/80');
+                icon.classList.add('text-cyan-400');
+            } else {
+                dropLabel.classList.remove('border-cyan-500', 'bg-slate-800/80');
+                icon.classList.remove('text-cyan-400');
+            }
+            
+            previewContainer.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative group';
+
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'w-20 h-20 rounded-lg bg-cover bg-center border border-slate-600 shadow-md transform group-hover:scale-105 transition-transform';
+                    imgDiv.style.backgroundImage = `url(${e.target.result})`;
+
+                    const delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 hover:scale-110';
+                    delBtn.innerText = '✕';
+                    delBtn.onclick = (event) => {
+                        event.preventDefault(); 
+                        removeSpecificImage(input, index);
+                    };
+
+                    wrapper.appendChild(imgDiv);
+                    wrapper.appendChild(delBtn);
+                    previewContainer.appendChild(wrapper);
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeSpecificImage(input, indexToRemove) {
+            const dt = new DataTransfer();
+            const files = Array.from(input.files);
+            
+            files.forEach((file, index) => {
+                if (index !== indexToRemove) {
+                    dt.items.add(file);
+                }
+            });
+            
+            input.files = dt.files;
+            handleImageUpload(input);
+        }
+
+        // --- MAGNETIC BUTTON LOGIC ---
         const magnetBtn = document.getElementById('deployBtn');
         magnetBtn.addEventListener('mousemove', (e) => {
             const rect = magnetBtn.getBoundingClientRect();
@@ -289,7 +371,7 @@
             magnetBtn.style.transform = `translate(0px, 0px)`;
         });
 
-        // --- UPGRADE 1: VISUAL TEMPLATE SELECTOR ---
+        // --- VISUAL TEMPLATE SELECTOR ---
         function selectTemplate(id, element) {
             document.getElementById('templateChoice').value = id;
             document.querySelectorAll('.template-card').forEach(card => card.classList.remove('active'));
@@ -305,6 +387,20 @@
                     <input type="text" placeholder="Project Title" class="proj-title self-start w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                     <input type="text" placeholder="Tech Stack" class="proj-tech self-start w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                     <textarea placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg resize-none overflow-hidden" rows="2" oninput="autoResize(this)" required></textarea>
+                    
+                    <div class="md:col-span-12 mt-2 pt-4 border-t border-slate-700/50">
+                        <label class="block text-sm text-slate-400 mb-3 uppercase tracking-wide">Project Imagery <span class="text-slate-500 normal-case tracking-normal ml-1">- Optional (Max 3)</span></label>
+                        <div class="flex items-center justify-center w-full">
+                            <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-900/40 hover:bg-slate-800/80 hover:border-cyan-500 transition-all dropzone-label">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-7 h-7 text-slate-400 mb-2 transition-colors dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                    <p class="text-xs text-slate-400"><span class="font-bold text-cyan-400">Click to attach</span> high-res screenshots</p>
+                                </div>
+                                <input type="file" class="hidden proj-images" accept="image/*" multiple onchange="handleImageUpload(this)" />
+                            </label>
+                        </div>
+                        <div class="image-preview-container flex flex-wrap gap-3 mt-4 empty:hidden"></div>
+                    </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
         }
@@ -362,11 +458,17 @@
             btn.disabled = true;
             btn.classList.add('opacity-70', 'cursor-not-allowed');
 
-            const projects = Array.from(document.querySelectorAll('.project-entry')).map(entry => ({
-                title: entry.querySelector('.proj-title').value,
-                desc: entry.querySelector('.proj-desc').value,
-                tech: entry.querySelector('.proj-tech').value
-            }));
+            const projects = Array.from(document.querySelectorAll('.project-entry')).map(entry => {
+                const fileInput = entry.querySelector('.proj-images');
+                const imageNames = fileInput ? Array.from(fileInput.files).map(f => f.name) : [];
+                
+                return {
+                    title: entry.querySelector('.proj-title').value,
+                    desc: entry.querySelector('.proj-desc').value,
+                    tech: entry.querySelector('.proj-tech').value,
+                    images: imageNames
+                };
+            });
 
             const experience = Array.from(document.querySelectorAll('.exp-entry')).map(entry => ({
                 role: entry.querySelector('.exp-role').value,

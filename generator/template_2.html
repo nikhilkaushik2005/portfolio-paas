@@ -59,6 +59,10 @@
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #4ade80; }
 
+        /* Hide scrollbar for inline image galleries */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         /* THE CURTAIN */
         #bios-screen {
             font-family: 'Courier New', Courier, monospace;
@@ -130,14 +134,30 @@
                     </div>
                     <div class="cmd-output ml-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         {% for project in projects %}
-                        <div class="group border border-gray-800 bg-[#0a0a0c]/80 p-4 rounded hover:border-emerald-500/50 hover:bg-emerald-900/20 transition-all duration-300 relative overflow-hidden backdrop-blur-sm">
+                        <div class="group flex flex-col border border-gray-800 bg-[#0a0a0c]/80 p-4 rounded hover:border-emerald-500/50 hover:bg-emerald-900/10 transition-all duration-300 relative overflow-hidden backdrop-blur-sm">
                             <div class="absolute top-0 left-0 w-1 h-full bg-gray-800 group-hover:bg-emerald-500"></div>
+                            
                             <p class="font-bold text-gray-100 flex items-center justify-between mb-2">
                                 <span>{{ project.title }}</span>
                                 <span class="text-[10px] text-gray-600 font-mono">drwxr-xr-x</span>
                             </p>
-                            <p class="text-gray-400 text-sm mb-3">{{ project.desc }}</p>
-                            <p class="text-emerald-400/80 text-xs font-mono"><span class="text-gray-600">STACK:</span> {{ project.tech }}</p>
+                            <p class="text-gray-400 text-sm mb-3 flex-grow">{{ project.desc }}</p>
+                            <p class="text-emerald-400/80 text-xs font-mono mb-2"><span class="text-gray-600">STACK:</span> {{ project.tech }}</p>
+
+                            {% if project.images and project.images|length > 0 %}
+                            <div class="mt-3 pt-3 border-t border-dashed border-gray-800">
+                                <span class="text-[10px] text-gray-500 mb-2 block font-mono">// FOUND {{ project.images|length }} VISUAL ASSET(S)</span>
+                                <div class="flex gap-2 overflow-x-auto hide-scrollbar">
+                                    {% for img in project.images %}
+                                    <div class="relative w-16 h-12 shrink-0 border border-gray-700 hover:border-emerald-400 cursor-pointer overflow-hidden group/img transition-colors" onclick="openTermViewer('{{ img }}')">
+                                        <div class="absolute inset-0 bg-emerald-900/60 mix-blend-color group-hover/img:hidden z-10 pointer-events-none"></div>
+                                        <img src="{{ img }}" alt="Buffer preview" class="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all">
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
                         </div>
                         {% endfor %}
                     </div>
@@ -222,6 +242,22 @@
                     <span class="text-emerald-400 font-bold ml-1 mr-2 select-none">╰─❯</span>
                     <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false">
                 </div>
+            </div>
+        </div>
+
+        <div id="term-viewer" class="absolute inset-0 z-[60] bg-[#050505]/95 backdrop-blur-md hidden flex-col opacity-0 transition-opacity duration-300">
+            <div class="bg-[#0a0a0c] px-4 py-2 flex items-center justify-between border-b border-gray-800/80 text-xs font-mono text-gray-500 select-none shadow-md">
+                <div class="flex items-center gap-2">
+                    <span class="animate-pulse w-2 h-2 bg-emerald-500 inline-block"></span>
+                    <span>DISPLAY_BUFFER_V1.2</span>
+                </div>
+                <button onclick="closeTermViewer()" class="hover:text-emerald-400 hover:bg-emerald-900/30 px-2 py-1 rounded transition-colors border border-transparent hover:border-emerald-900/50">
+                    [ ESC to exit ]
+                </button>
+            </div>
+            
+            <div class="flex-grow p-4 md:p-8 flex items-center justify-center relative overflow-hidden cursor-crosshair" onclick="closeTermViewer()">
+                <img id="term-viewer-img" src="" class="max-w-full max-h-full object-contain border border-gray-800 shadow-[0_0_30px_rgba(16,185,129,0.15)] pointer-events-none">
             </div>
         </div>
     </div>
@@ -353,7 +389,12 @@
             const termInput = document.getElementById('term-input');
             const interactiveArea = document.getElementById('interactive-area');
 
-            terminalContainer.addEventListener('click', () => termInput.focus({ preventScroll: true }));
+            terminalContainer.addEventListener('click', () => {
+                // Only refocus if the terminal viewer is closed
+                if(document.getElementById('term-viewer').classList.contains('hidden')) {
+                    termInput.focus({ preventScroll: true });
+                }
+            });
 
             termInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
@@ -365,13 +406,10 @@
                     if(cmd === 'whoami') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-yellow-200">guest_user_v1.0</div>`);
                     if(cmd === 'sudo') interactiveArea.insertAdjacentHTML('beforeend', `<div class="ml-4 text-red-500 font-bold">Permission Denied.</div>`);
                     
-                    // UPDATED DYNAMIC CONTACT COMMAND
-                 // Safely load the Python/Jinja variables into standard JavaScript strings
                     const userEmail = "{{ email | default('') }}";
                     const userGithub = "{{ github | default('') }}";
                     const userLinkedin = "{{ linkedin | default('') }}";
 
-                    // UPDATED DYNAMIC CONTACT COMMAND (Pure JS)
                     if(cmd === 'contact') {
                         let contactOutput = '';
                         
@@ -398,6 +436,38 @@
             });
 
             runBios();
+        });
+
+        // --- IN-TERMINAL IMAGE VIEWER LOGIC ---
+        const termViewer = document.getElementById('term-viewer');
+        const termViewerImg = document.getElementById('term-viewer-img');
+
+        function openTermViewer(src) {
+            termViewerImg.src = src;
+            termViewer.classList.remove('hidden');
+            
+            // Force a browser reflow
+            void termViewer.offsetWidth;
+            
+            termViewer.classList.replace('opacity-0', 'opacity-100');
+            termViewer.classList.add('flex');
+        }
+
+        function closeTermViewer() {
+            termViewer.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => {
+                termViewer.classList.add('hidden');
+                termViewer.classList.remove('flex');
+                termViewerImg.src = '';
+                document.getElementById('term-input').focus({ preventScroll: true }); // Return focus to typing
+            }, 300);
+        }
+
+        // Allow escape key to close the terminal viewer
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && !termViewer.classList.contains('hidden')) {
+                closeTermViewer();
+            }
         });
     </script>
 </body>
