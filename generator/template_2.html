@@ -145,13 +145,24 @@
                             <p class="text-emerald-400/80 text-xs font-mono mb-2"><span class="text-gray-600">STACK:</span> {{ project.tech }}</p>
 
                             {% if project.images and project.images|length > 0 %}
-                            <div class="mt-3 pt-3 border-t border-dashed border-gray-800">
-                                <span class="text-[10px] text-gray-500 mb-2 block font-mono">// FOUND {{ project.images|length }} VISUAL ASSET(S)</span>
-                                <div class="flex gap-2 overflow-x-auto hide-scrollbar">
+                            <div class="mt-5 pt-4 border-t border-dashed border-gray-800">
+                                <span class="text-[10px] text-emerald-500/70 mb-3 block font-mono">> DECRYPTING VISUAL PAYLOADS ({{ project.images|length }})...</span>
+                                
+                                <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 snap-x">
                                     {% for img in project.images %}
-                                    <div class="relative w-16 h-12 shrink-0 border border-gray-700 hover:border-emerald-400 cursor-pointer overflow-hidden group/img transition-colors" onclick="openTermViewer('{{ img }}')">
-                                        <div class="absolute inset-0 bg-emerald-900/60 mix-blend-color group-hover/img:hidden z-10 pointer-events-none"></div>
-                                        <img src="{{ img }}" alt="Buffer preview" class="w-full h-full object-cover grayscale group-hover/img:grayscale-0 transition-all">
+                                    <div class="relative w-48 h-32 shrink-0 border border-gray-700 bg-black rounded-sm cursor-pointer overflow-hidden group flex flex-col snap-start transition-all hover:border-emerald-500 shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]" onclick="openTermViewer('{{ img }}')">
+                                        
+                                        <div class="bg-gray-900/80 px-2 py-1 border-b border-gray-800 flex justify-between items-center z-20">
+                                            <span class="text-[9px] text-gray-400 font-mono">IMG_{{ loop.index }}.DAT</span>
+                                            <span class="text-[9px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity font-mono">[CLICK TO MOUNT]</span>
+                                        </div>
+                                        
+                                        <div class="relative flex-grow overflow-hidden">
+                                            <div class="absolute inset-0 bg-emerald-900/40 mix-blend-color group-hover:opacity-0 z-10 pointer-events-none transition-opacity duration-300"></div>
+                                            
+                                            <img src="{{ img }}" alt="Payload" class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500">
+                                        </div>
+
                                     </div>
                                     {% endfor %}
                                 </div>
