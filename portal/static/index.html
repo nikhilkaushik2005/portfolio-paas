@@ -473,31 +473,39 @@
             "[SUCCESS] Architecture deployed successfully."
         ];
 
-        document.getElementById('deployForm').addEventListener('submit', async (e) => {
+document.getElementById('deployForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('deployBtn');
             btn.innerHTML = "<span class='animate-pulse'>⏳ Processing Data...</span>"; 
             btn.disabled = true;
-            btn.classList.add('opacity-70', 'cursor-not-allowed');
 
-            const projects = Array.from(document.querySelectorAll('.project-entry')).map(entry => {
+            const formData = new FormData(); // Initialize early to pack images
+            const projectsData = [];
+
+            // 1. Pack the physical images AND the text data
+            document.querySelectorAll('.project-entry').forEach((entry, index) => {
                 const fileInput = entry.querySelector('.proj-images');
-                const imageNames = fileInput ? Array.from(fileInput.files).map(f => f.name) : [];
+                let imagePlaceholders = [];
                 
-                return {
+                if (fileInput && fileInput.currentFiles) {
+                    fileInput.currentFiles.forEach(file => {
+                        const safeName = `proj_${index}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+                        imagePlaceholders.push(safeName);
+                        
+                        // APPEND THE ACTUAL BINARY FILE TO THE REQUEST
+                        formData.append('images', file, safeName); 
+                    });
+                }
+                
+                projectsData.push({
                     title: entry.querySelector('.proj-title').value,
                     desc: entry.querySelector('.proj-desc').value,
                     tech: entry.querySelector('.proj-tech').value,
-                    images: imageNames
-                };
+                    images: imagePlaceholders
+                });
             });
 
-            const experience = Array.from(document.querySelectorAll('.exp-entry')).map(entry => ({
-                role: entry.querySelector('.exp-role').value,
-                org: entry.querySelector('.exp-org').value,
-                date: entry.querySelector('.exp-date').value
-            }));
-
+            // 2. Pack the rest of the text data
             const data = {
                 template_id: document.getElementById('templateChoice').value,
                 name: document.getElementById('name').value,
@@ -507,12 +515,16 @@
                 github: document.getElementById('github').value,
                 linkedin: document.getElementById('linkedin').value,
                 email: document.getElementById('email').value,
-                projects: projects,
-                experience: experience
+                projects: projectsData,
+                experience: Array.from(document.querySelectorAll('.exp-entry')).map(entry => ({
+                    role: entry.querySelector('.exp-role').value,
+                    org: entry.querySelector('.exp-org').value,
+                    date: entry.querySelector('.exp-date').value
+                }))
             };
 
-            const formData = new FormData(); 
-            formData.append('file', new Blob([JSON.stringify(data)], { type: 'application/json' }), 'student_data.json');
+            // Append the JSON payload
+            formData.append('json_data', JSON.stringify(data));
 
             try {
                 const response = await fetch('/one-click-deploy', { method: 'POST', body: formData });
