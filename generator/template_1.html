@@ -62,7 +62,7 @@
                     </div>
                     
                     <h4 class="text-xl font-bold text-white mb-2">{{ project.title }}</h4>
-                    <p class="text-sm text-slate-400 mb-6 flex-grow">{{ project.desc }}</p>
+                    <p class="text-sm text-slate-400 mb-6 flex-grow break-words">{{ project.desc }}</p>
                     
                     {% if project.images and project.images|length > 0 %}
                     <div class="mb-6 flex gap-3 overflow-x-auto snap-x hide-scrollbar pb-2">
