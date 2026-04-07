@@ -157,9 +157,10 @@
                         <div class="mb-6 flex justify-between items-start">
                             <h3 class="text-4xl font-black uppercase leading-tight">{{ project.title }}</h3>
                         </div>
-                        <p class="text-xl font-medium text-gray-800 mb-8">{{ project.desc }}</p>
+                        
+                        <p class="text-xl font-medium text-gray-800 mb-8 flex-grow">{{ project.desc }}</p>
 
-                        {% if project.images and project.images|length > 0 %}
+                        {% if project.images and project.images|length > 0 and project.images[0] != "" %}
                         <div class="mt-8 mb-16 relative h-64 md:h-80 w-full flex justify-center items-center">
                             
                             {% for image in project.images %}
