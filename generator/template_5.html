@@ -151,37 +151,37 @@
                         </div>
                     </div>
 
-                    {% if project.images and project.images|length > 0 %}
-                    <div class="w-full mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 pointer-events-none">
+                    {% if project.images and project.images|length > 0 and project.images[0] != "" %}
+                    <div class="w-full mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
                         
                         {% if project.images|length == 1 %}
-                            <div class="md:col-span-10 md:col-start-2 border border-[var(--line-color)] overflow-hidden">
+                            <div class="md:col-span-10 md:col-start-2 border border-[var(--line-color)] overflow-hidden cursor-pointer pointer-events-auto" onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], 0)">
                                 <img src="{{ project.images[0] }}" class="w-full aspect-[21/9] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
                             </div>
 
                         {% elif project.images|length == 2 %}
-                            <div class="md:col-span-7 border border-[var(--line-color)] overflow-hidden">
+                            <div class="md:col-span-7 border border-[var(--line-color)] overflow-hidden cursor-pointer pointer-events-auto" onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], 0)">
                                 <img src="{{ project.images[0] }}" class="w-full aspect-[4/3] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
                             </div>
                             <div class="md:col-span-5 md:pt-32 border border-transparent overflow-hidden">
-                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden cursor-pointer pointer-events-auto" onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], 1)">
                                     <img src="{{ project.images[1] }}" class="w-full aspect-[3/4] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
                                 </div>
                             </div>
 
                         {% else %}
                             <div class="md:col-span-4 border border-transparent overflow-hidden">
-                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden cursor-pointer pointer-events-auto" onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], 0)">
                                     <img src="{{ project.images[0] }}" class="w-full aspect-[3/4] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out">
                                 </div>
                             </div>
                             <div class="md:col-span-5 md:pt-16 border border-transparent overflow-hidden">
-                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden cursor-pointer pointer-events-auto" onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], 1)">
                                     <img src="{{ project.images[1] }}" class="w-full aspect-square object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out delay-75">
                                 </div>
                             </div>
                             <div class="md:col-span-3 md:pt-40 border border-transparent overflow-hidden">
-                                <div class="border border-[var(--line-color)] overflow-hidden">
+                                <div class="border border-[var(--line-color)] overflow-hidden cursor-pointer pointer-events-auto" onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], 2)">
                                     <img src="{{ project.images[2] }}" class="w-full aspect-[4/5] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transform scale-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out delay-150">
                                 </div>
                             </div>
@@ -252,6 +252,34 @@
             </div>
         </div>
     </footer>
+
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-[#0f0e0d]/95 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500">
+        <button onclick="closeLightbox()" class="absolute top-8 right-8 text-[var(--text-muted)] hover:text-white transition-colors text-sm uppercase tracking-[0.2em] z-50">
+            Close [X]
+        </button>
+
+        <div class="relative w-full max-w-7xl h-full flex flex-col items-center justify-center p-8 md:p-16" id="lightbox-bounds">
+            <div class="relative w-full max-h-[80vh] flex items-center justify-center" onclick="event.stopPropagation()">
+                <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain shadow-2xl transition-opacity duration-200" alt="Gallery View">
+            </div>
+        </div>
+        
+        <div class="absolute bottom-12 w-full px-8 md:px-16 flex justify-between items-end pointer-events-none">
+            <div class="pointer-events-auto">
+                <button id="btn-prev" onclick="changeImage(-1, event)" class="text-[var(--text-muted)] hover:text-white transition-colors text-xs uppercase tracking-[0.2em] hidden">
+                    [ Previous ]
+                </button>
+            </div>
+            <div id="lightbox-counter" class="text-[var(--text-muted)] hidden serif text-xl md:text-3xl">
+                01 / 03
+            </div>
+            <div class="pointer-events-auto">
+                <button id="btn-next" onclick="changeImage(1, event)" class="text-[var(--text-muted)] hover:text-white transition-colors text-xs uppercase tracking-[0.2em] hidden">
+                    [ Next ]
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // --- 1. MATTER.JS PHYSICS SIMULATION ---
@@ -410,6 +438,83 @@
         }, { root: null, rootMargin: '0px', threshold: 0.1 });
         
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- 3. EDITORIAL GALLERY LOGIC ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const counter = document.getElementById('lightbox-counter');
+        
+        let currentGallery = [];
+        let currentIndex = 0;
+
+        function openLightbox(imagesArray, startIndex) {
+            currentGallery = imagesArray;
+            currentIndex = startIndex;
+            
+            updateLightboxView();
+            
+            lightbox.classList.remove('hidden');
+            lightbox.classList.add('flex');
+            void lightbox.offsetWidth; // Force reflow
+            lightbox.classList.replace('opacity-0', 'opacity-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => {
+                lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
+                lightboxImg.src = '';
+                document.body.style.overflow = 'auto';
+            }, 500);
+        }
+
+        function changeImage(direction, event) {
+            if (event) event.stopPropagation();
+            currentIndex += direction;
+            
+            if (currentIndex < 0) currentIndex = currentGallery.length - 1;
+            if (currentIndex >= currentGallery.length) currentIndex = 0;
+            
+            updateLightboxView();
+        }
+
+        function updateLightboxView() {
+            // Smooth fade out/in effect for image change
+            lightboxImg.style.opacity = '0';
+            setTimeout(() => {
+                lightboxImg.src = currentGallery[currentIndex];
+                lightboxImg.style.opacity = '1';
+            }, 200);
+
+            if (currentGallery.length > 1) {
+                btnPrev.classList.remove('hidden');
+                btnNext.classList.remove('hidden');
+                counter.classList.remove('hidden');
+                counter.innerText = `0${currentIndex + 1} / 0${currentGallery.length}`;
+            } else {
+                btnPrev.classList.add('hidden');
+                btnNext.classList.add('hidden');
+                counter.classList.add('hidden');
+            }
+        }
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target.id === 'lightbox-bounds') {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (lightbox.classList.contains('hidden')) return;
+            
+            if (event.key === "Escape") closeLightbox();
+            if (event.key === "ArrowLeft") changeImage(-1);
+            if (event.key === "ArrowRight") changeImage(1);
+        });
     </script>
 </body>
 </html>
