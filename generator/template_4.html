@@ -148,6 +148,13 @@
                 <div class="h-4 flex-grow bg-[#FF2A85] thick-border mb-3 md:mb-5 hidden sm:block"></div>
             </div>
             
+            {% set ns = namespace(portfolio_has_images=false) %}
+            {% for p in projects %}
+                {% if p.images and p.images|length > 0 and p.images[0] != "" %}
+                    {% set ns.portfolio_has_images = true %}
+                {% endif %}
+            {% endfor %}
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
                 {% for project in projects %}
                 <article class="brutal-card p-8 md:p-10 flex flex-col h-full reveal-hard group relative overflow-hidden">
@@ -157,29 +164,39 @@
                         <div class="mb-6 flex justify-between items-start">
                             <h3 class="text-4xl font-black uppercase leading-tight">{{ project.title }}</h3>
                         </div>
-                        
-                        <p class="text-xl font-medium text-gray-800 mb-8 flex-grow">{{ project.desc }}</p>
+                        <p class="text-xl font-medium text-gray-800 mb-8 flex-grow break-words">{{ project.desc }}</p>
 
-                        {% if project.images and project.images|length > 0 and project.images[0] != "" %}
-                        <div class="mt-8 mb-16 relative h-64 md:h-80 w-full flex justify-center items-center">
+                        {% set this_project_has_images = project.images and project.images|length > 0 and project.images[0] != "" %}
+
+                        {% if this_project_has_images %}
                             
-                            {% for image in project.images %}
-                            <div class="absolute w-3/4 md:w-2/3 h-full transition-all duration-300 hover:!z-50 hover:scale-105 hover:!rotate-0 group/img cursor-pointer
-                                {% if loop.index == 1 %} -rotate-6 -translate-x-12 md:-translate-x-20 z-10 
-                                {% elif loop.index == 2 %} rotate-3 z-20 
-                                {% else %} -rotate-2 translate-x-12 md:translate-x-20 z-30 {% endif %}"
-                                onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], {{ loop.index0 }})">
-                                
-                                <div class="w-full h-full bg-white thick-border p-2 pb-8 shadow-[8px_8px_0px_0px_#111] group-hover/img:shadow-[12px_12px_0px_0px_#FF2A85] transition-all relative flex flex-col">
-                                    <img src="{{ image }}" class="w-full h-full object-cover border-2 border-black filter grayscale group-hover/img:grayscale-0 transition-all duration-300" alt="Project Asset">
-                                    
-                                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#FFB5D5] border-2 border-black rotate-2"></div>
+                            <div class="mt-8 mb-16 relative h-64 md:h-80 w-full flex justify-center items-center shrink-0">
+                                {% for image in project.images %}
+                                <div class="absolute w-3/4 md:w-2/3 h-full transition-all duration-300 hover:!z-50 hover:scale-105 hover:!rotate-0 group/img cursor-pointer
+                                    {% if loop.index == 1 %} -rotate-6 -translate-x-12 md:-translate-x-20 z-10 
+                                    {% elif loop.index == 2 %} rotate-3 z-20 
+                                    {% else %} -rotate-2 translate-x-12 md:translate-x-20 z-30 {% endif %}"
+                                    onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], {{ loop.index0 }})">
+                                    <div class="w-full h-full bg-white thick-border p-2 pb-8 shadow-[8px_8px_0px_0px_#111] group-hover/img:shadow-[12px_12px_0px_0px_#FF2A85] transition-all relative flex flex-col">
+                                        <img src="{{ image }}" class="w-full h-full object-cover border-2 border-black filter grayscale group-hover/img:grayscale-0 transition-all duration-300" alt="Project Asset">
+                                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#FFB5D5] border-2 border-black rotate-2"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                        {% elif ns.portfolio_has_images %}
+                            
+                            <div class="mt-8 mb-16 relative h-64 md:h-80 w-full flex items-center justify-center border-4 border-black border-dashed bg-[var(--paper)] overflow-hidden group/empty transition-all duration-300 shrink-0">
+                                <div class="absolute inset-0 bg-[#111] transform -translate-x-full group-hover/empty:translate-x-0 transition-transform duration-500 ease-out z-0"></div>
+                                <div class="text-4xl md:text-5xl font-black text-gray-300 group-hover/empty:text-[#FFB5D5] transition-colors duration-500 relative z-10 select-none transform -rotate-12 group-hover/empty:rotate-0 group-hover/empty:scale-110">
+                                    NO_DATA
                                 </div>
                             </div>
-                            {% endfor %}
-
-                        </div>
-                        {% endif %}
+                            
+                        {% else %}
+                            
+                            {% endif %}
                     </div>
                     
                     <div class="relative z-10 pt-6 border-t-4 border-black mt-auto">
