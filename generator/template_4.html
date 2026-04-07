@@ -160,15 +160,16 @@
                         <p class="text-xl font-medium text-gray-800 mb-8">{{ project.desc }}</p>
 
                         {% if project.images and project.images|length > 0 %}
-                        <div class="mt-4 mb-12 relative h-56 md:h-64 w-full flex justify-center items-center">
+                        <div class="mt-8 mb-16 relative h-64 md:h-80 w-full flex justify-center items-center">
                             
                             {% for image in project.images %}
-                            <div class="absolute w-4/5 md:w-3/4 h-full transition-all duration-300 hover:!z-50 hover:scale-110 hover:!rotate-0 group/img cursor-crosshair
-                                {% if loop.index == 1 %} -rotate-6 -translate-x-4 z-10 
-                                {% elif loop.index == 2 %} rotate-3 translate-x-2 z-20 
-                                {% else %} -rotate-2 translate-x-6 z-30 {% endif %}">
+                            <div class="absolute w-3/4 md:w-2/3 h-full transition-all duration-300 hover:!z-50 hover:scale-105 hover:!rotate-0 group/img cursor-pointer
+                                {% if loop.index == 1 %} -rotate-6 -translate-x-12 md:-translate-x-20 z-10 
+                                {% elif loop.index == 2 %} rotate-3 z-20 
+                                {% else %} -rotate-2 translate-x-12 md:translate-x-20 z-30 {% endif %}"
+                                onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], {{ loop.index0 }})">
                                 
-                                <div class="w-full h-full bg-white thick-border p-2 pb-8 shadow-[8px_8px_0px_0px_#111] group-hover/img:shadow-[12px_12px_0px_0px_#FF2A85] transition-all relative">
+                                <div class="w-full h-full bg-white thick-border p-2 pb-8 shadow-[8px_8px_0px_0px_#111] group-hover/img:shadow-[12px_12px_0px_0px_#FF2A85] transition-all relative flex flex-col">
                                     <img src="{{ image }}" class="w-full h-full object-cover border-2 border-black filter grayscale group-hover/img:grayscale-0 transition-all duration-300" alt="Project Asset">
                                     
                                     <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#FFB5D5] border-2 border-black rotate-2"></div>
@@ -247,15 +248,41 @@
         </div>
     </footer>
 
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-[rgba(15,15,15,0.9)] backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 brutal-btn-alt rounded-full flex items-center justify-center text-2xl z-50">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="relative w-full max-w-6xl max-h-[85vh] flex items-center justify-center px-4 md:px-16" id="lightbox-bounds">
+            <button id="btn-prev" onclick="changeImage(-1, event)" class="absolute left-4 md:left-8 w-12 h-12 md:w-16 md:h-16 brutal-btn rounded-full flex items-center justify-center text-xl md:text-3xl z-50 hidden">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <div class="bg-white thick-border p-4 pb-12 shadow-[16px_16px_0px_0px_#FF2A85] relative max-w-full max-h-full" onclick="event.stopPropagation()">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#FFB5D5] border-4 border-black rotate-2 z-10"></div>
+                <img id="lightbox-img" src="" class="max-w-full max-h-[70vh] object-contain border-4 border-black" alt="Gallery View">
+            </div>
+
+            <button id="btn-next" onclick="changeImage(1, event)" class="absolute right-4 md:right-8 w-12 h-12 md:w-16 md:h-16 brutal-btn rounded-full flex items-center justify-center text-xl md:text-3xl z-50 hidden">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div id="lightbox-counter" class="absolute bottom-6 font-black text-white text-xl uppercase tracking-widest bg-black px-6 py-2 thick-border border-white hidden">
+            1 / 3
+        </div>
+    </div>
+
     <script>
-        // Marquee Logic
+        // --- Marquee Logic ---
         const rawSkills = "{{ skills }}";
         const skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s !== "");
         const marqueeString = skillsArray.join(' &nbsp; • &nbsp; ') + ' &nbsp; • &nbsp; ';
         const marqueeInner = document.getElementById('marquee-inner');
         marqueeInner.innerHTML = marqueeString.repeat(4);
 
-        // Intersection Observer for hard snappy reveals
+        // --- Intersection Observer ---
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => { 
                 if (entry.isIntersecting) { 
@@ -266,6 +293,81 @@
         }, { root: null, rootMargin: '0px', threshold: 0.15 });
         
         document.querySelectorAll('.reveal-hard').forEach(el => observer.observe(el));
+
+        // --- BRUTALIST GALLERY LOGIC ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const counter = document.getElementById('lightbox-counter');
+        
+        let currentGallery = [];
+        let currentIndex = 0;
+
+        function openLightbox(imagesArray, startIndex) {
+            currentGallery = imagesArray;
+            currentIndex = startIndex;
+            
+            updateLightboxView();
+            
+            lightbox.classList.remove('hidden');
+            void lightbox.offsetWidth; // Force reflow
+            lightbox.classList.replace('opacity-0', 'opacity-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => {
+                lightbox.classList.add('hidden');
+                lightboxImg.src = '';
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        function changeImage(direction, event) {
+            if (event) event.stopPropagation(); // Stop click from hitting the background and closing
+            currentIndex += direction;
+            
+            // Loop around if out of bounds
+            if (currentIndex < 0) currentIndex = currentGallery.length - 1;
+            if (currentIndex >= currentGallery.length) currentIndex = 0;
+            
+            updateLightboxView();
+        }
+
+        function updateLightboxView() {
+            lightboxImg.src = currentGallery[currentIndex];
+            
+            // If the project has more than 1 image, show arrows and counter
+            if (currentGallery.length > 1) {
+                btnPrev.classList.remove('hidden');
+                btnNext.classList.remove('hidden');
+                counter.classList.remove('hidden');
+                counter.innerText = `${currentIndex + 1} / ${currentGallery.length}`;
+            } else {
+                btnPrev.classList.add('hidden');
+                btnNext.classList.add('hidden');
+                counter.classList.add('hidden');
+            }
+        }
+
+        // Background click to close
+        lightbox.addEventListener('click', (e) => {
+            // Close if clicking the dark overlay, but not if clicking the photo
+            if (e.target === lightbox || e.target.id === 'lightbox-bounds') {
+                closeLightbox();
+            }
+        });
+
+        // Keyboard Controls
+        document.addEventListener('keydown', function(event) {
+            if (lightbox.classList.contains('hidden')) return;
+            
+            if (event.key === "Escape") closeLightbox();
+            if (event.key === "ArrowLeft") changeImage(-1);
+            if (event.key === "ArrowRight") changeImage(1);
+        });
     </script>
 </body>
 </html>
