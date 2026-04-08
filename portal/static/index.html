@@ -22,6 +22,18 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
         
+        /* --- NEW: CUSTOM HORIZONTAL SCROLLBAR FOR TEMPLATES --- */
+        .template-scroll::-webkit-scrollbar { height: 10px; }
+        .template-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); border-radius: 10px; margin: 0 10px; }
+        .template-scroll::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.4); border-radius: 10px; }
+        .template-scroll::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.8); }
+
+        /* --- NEW: FADE MASK FOR HORIZONTAL SCROLLING --- */
+        .fade-mask {
+            -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+            mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        }
+
         /* Template Card Styles */
         .template-card { transition: all 0.3s ease; }
         .template-card.active { border-color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.3); background-color: rgba(30, 41, 59, 0.8); transform: translateY(-4px); }
@@ -109,7 +121,7 @@
                     
                     <input type="hidden" id="templateChoice" value="1">
                     
-                    <div class="flex overflow-x-auto gap-4 pb-6 pt-2 snap-x">
+                    <div class="flex overflow-x-auto gap-4 pb-6 pt-2 snap-x template-scroll fade-mask pr-12">
                         <div class="template-card active min-w-[240px] bg-slate-900/50 border border-slate-600 rounded-xl p-4 cursor-pointer snap-start hover:border-cyan-400" onclick="selectTemplate(1, this)">
                             <div class="h-20 rounded bg-gradient-to-br from-slate-800 to-black mb-3 border border-slate-700"></div>
                             <h4 class="font-bold text-white">01. Pro Glassmorphism</h4>
@@ -189,16 +201,14 @@
                 </div>
 
                 <div>
-                    <div class="flex justify-between items-center mb-6 px-2">
+                    <div class="mb-6 px-2">
                         <h3 class="text-xl md:text-2xl font-bold text-white tracking-wide">Featured Projects</h3>
-                        <button type="button" onclick="addProject()" class="text-sm md:text-base bg-slate-800 hover:bg-slate-700 border border-slate-600 px-5 py-2.5 rounded-full text-white transition-all hover:border-cyan-500 flex items-center gap-2 shadow-sm">
-                            <span class="text-cyan-400 font-bold text-lg leading-none">+</span> Add Project
-                        </button>
                     </div>
+                    
                     <div id="projects-container" class="space-y-5">
-                        
                         <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
-                            <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
+                            <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-40 hover:!opacity-100 z-10 cursor-pointer">✕</button>
+                            
                             <input type="text" placeholder="Project Title" class="proj-title self-start w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                             <input type="text" placeholder="Tech Stack" class="proj-tech self-start w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                             <textarea placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg resize-none overflow-hidden" rows="2" oninput="autoResize(this)" required></textarea>
@@ -217,25 +227,31 @@
                                 <div class="image-preview-container flex flex-wrap gap-3 mt-4 empty:hidden"></div>
                             </div>
                         </div>
-
                     </div>
+
+                    <button type="button" onclick="addProject()" class="w-full mt-5 text-sm md:text-base bg-slate-800/40 hover:bg-slate-800/80 border-2 border-dashed border-slate-600 hover:border-cyan-500 py-4 rounded-2xl text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <span class="text-cyan-400 font-bold text-xl leading-none">+</span> Add Another Project
+                    </button>
                 </div>
 
                 <div>
-                    <div class="flex justify-between items-center mb-6 px-2">
+                    <div class="mb-6 px-2">
                         <h3 class="text-xl md:text-2xl font-bold text-white tracking-wide">Experience Timeline</h3>
-                        <button type="button" onclick="addExperience()" class="text-sm md:text-base bg-slate-800 hover:bg-slate-700 border border-slate-600 px-5 py-2.5 rounded-full text-white transition-all hover:border-blue-500 flex items-center gap-2 shadow-sm">
-                            <span class="text-blue-400 font-bold text-lg leading-none">+</span> Add Role
-                        </button>
                     </div>
+                    
                     <div id="exp-container" class="space-y-5">
                         <div class="exp-entry grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
-                            <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
+                            <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-40 hover:!opacity-100 z-10 cursor-pointer">✕</button>
+                            
                             <input type="text" placeholder="Role (e.g. Intern)" class="exp-role w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                             <input type="text" placeholder="Organization" class="exp-org w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                             <input type="text" placeholder="Duration (e.g. 2025 - Present)" class="exp-date w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                         </div>
                     </div>
+
+                    <button type="button" onclick="addExperience()" class="w-full mt-5 text-sm md:text-base bg-slate-800/40 hover:bg-slate-800/80 border-2 border-dashed border-slate-600 hover:border-blue-500 py-4 rounded-2xl text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <span class="text-blue-400 font-bold text-xl leading-none">+</span> Add Another Role
+                    </button>
                 </div>
 
                 <div class="relative w-full flex justify-center pt-4 z-20">
@@ -297,39 +313,31 @@
         function handleImageUpload(input) {
             const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
             
-            // 1. Initialize a custom tracking array directly on the input element
             if (!input.currentFiles) {
                 input.currentFiles = [];
             }
             
-            // 2. Safely grab newly selected files and append them to our tracker
             const newFiles = Array.from(input.files);
             input.currentFiles = input.currentFiles.concat(newFiles);
             
-            // 3. Hard limit: Discard anything over 3
             if (input.currentFiles.length > 3) {
                 alert("You can only attach a maximum of 3 images per project. Excess images were discarded.");
                 input.currentFiles = input.currentFiles.slice(0, 3);
             }
             
-            // 4. Update UI & Sync
             syncInputFiles(input);
             renderImagePreviews(input, previewContainer);
         }
 
         function removeSpecificImage(input, indexToRemove) {
-            // Remove the specific file from our custom tracking array
             input.currentFiles.splice(indexToRemove, 1);
             
-            // Update UI & Sync
             const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
             syncInputFiles(input);
             renderImagePreviews(input, previewContainer);
         }
 
         function syncInputFiles(input) {
-            // Because input.files is read-only, we must use a DataTransfer object 
-            // to "re-pack" the files so the backend form submission picks them all up.
             const dt = new DataTransfer();
             input.currentFiles.forEach(file => dt.items.add(file));
             input.files = dt.files;
@@ -339,7 +347,6 @@
             const dropLabel = input.closest('.dropzone-label');
             const icon = dropLabel.querySelector('.dropzone-icon');
             
-            // UI Feedback: Glow blue when files are loaded
             if(input.currentFiles.length > 0) {
                 dropLabel.classList.add('border-cyan-500', 'bg-slate-800/80');
                 icon.classList.add('text-cyan-400');
@@ -348,9 +355,8 @@
                 icon.classList.remove('text-cyan-400');
             }
             
-            previewContainer.innerHTML = ''; // Wipe previews clean
+            previewContainer.innerHTML = ''; 
             
-            // Rebuild previews from the tracking array
             input.currentFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -366,7 +372,6 @@
                     delBtn.className = 'absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 hover:scale-110';
                     delBtn.innerText = '✕';
                     
-                    // Pass the input element and the specific array index to remove
                     delBtn.onclick = (event) => {
                         event.preventDefault(); 
                         removeSpecificImage(input, index);
@@ -379,7 +384,6 @@
                 reader.readAsDataURL(file);
             });
         }
-        // --- END IMAGE UPLOAD LOGIC ---
 
         // --- MAGNETIC BUTTON LOGIC ---
         const magnetBtn = document.getElementById('deployBtn');
@@ -405,7 +409,7 @@
             const container = document.getElementById('projects-container');
             const html = `
                 <div class="project-entry grid grid-cols-1 md:grid-cols-12 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
-                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
+                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-40 hover:!opacity-100 z-10 cursor-pointer">✕</button>
                     <input type="text" placeholder="Project Title" class="proj-title self-start w-full md:col-span-4 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                     <input type="text" placeholder="Tech Stack" class="proj-tech self-start w-full md:col-span-3 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg" required>
                     <textarea placeholder="Short Description" class="proj-desc w-full md:col-span-5 bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-cyan-500 outline-none text-base md:text-lg resize-none overflow-hidden" rows="2" oninput="autoResize(this)" required></textarea>
@@ -431,7 +435,7 @@
             const container = document.getElementById('exp-container');
             const html = `
                 <div class="exp-entry grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-800/40 border border-slate-700/50 rounded-2xl relative group transition-all duration-300">
-                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10">✕</button>
+                    <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-2 bg-red-900/80 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-red-500 shadow-lg transition-all opacity-100 md:opacity-40 hover:!opacity-100 z-10 cursor-pointer">✕</button>
                     <input type="text" placeholder="Role (e.g. Intern)" class="exp-role w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                     <input type="text" placeholder="Organization" class="exp-org w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
                     <input type="text" placeholder="Duration (e.g. 2025 - Present)" class="exp-date w-full bg-slate-900/50 rounded-lg px-4 py-3 border border-slate-700 focus:ring-1 focus:ring-blue-500 outline-none text-base md:text-lg" required>
@@ -473,13 +477,13 @@
             "[SUCCESS] Architecture deployed successfully."
         ];
 
-document.getElementById('deployForm').addEventListener('submit', async (e) => {
+        document.getElementById('deployForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('deployBtn');
             btn.innerHTML = "<span class='animate-pulse'>⏳ Processing Data...</span>"; 
             btn.disabled = true;
 
-            const formData = new FormData(); // Initialize early to pack images
+            const formData = new FormData(); 
             const projectsData = [];
 
             // 1. Pack the physical images AND the text data
@@ -492,7 +496,6 @@ document.getElementById('deployForm').addEventListener('submit', async (e) => {
                         const safeName = `proj_${index}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
                         imagePlaceholders.push(safeName);
                         
-                        // APPEND THE ACTUAL BINARY FILE TO THE REQUEST
                         formData.append('images', file, safeName); 
                     });
                 }
@@ -523,19 +526,16 @@ document.getElementById('deployForm').addEventListener('submit', async (e) => {
                 }))
             };
 
-            // Append the JSON payload
             formData.append('json_data', JSON.stringify(data));
 
             try {
                 const response = await fetch('/one-click-deploy', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                // Show Banner Framework
                 document.getElementById('liveLink').href = result.live_url;
                 document.getElementById('liveLink').innerText = result.live_url;
                 document.getElementById('resultBanner').classList.remove('translate-y-full');
                 
-                // Ensure UI is in loading state
                 document.getElementById('linkActions').classList.add('hidden');
                 document.getElementById('linkActions').classList.remove('flex');
                 document.getElementById('terminal-container').classList.remove('hidden');
@@ -544,12 +544,10 @@ document.getElementById('deployForm').addEventListener('submit', async (e) => {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 document.getElementById('timerContainer').innerHTML = `Estimated time: <span id="countdownTimer" class="text-white font-mono text-lg ml-1">02:00</span>`;
                 
-                // Reset Button State
                 btn.innerHTML = "✅ Deployment Triggered"; 
                 btn.classList.remove('opacity-70', 'cursor-not-allowed', 'from-cyan-600', 'to-blue-600');
                 btn.classList.add('from-emerald-600', 'to-teal-600');
 
-                // Start Timer & Terminal Stream
                 let timeLeft = 120;
                 let logIndex = 0;
                 const terminal = document.getElementById('terminal-logs');
@@ -558,7 +556,6 @@ document.getElementById('deployForm').addEventListener('submit', async (e) => {
                 const countdown = setInterval(() => {
                     timeLeft--;
                     
-                    // Inject Fake Logs into Terminal
                     if (logIndex < fakeLogs.length && Math.random() > 0.3) {
                         terminal.innerHTML += `<div class="mt-1 text-emerald-400 log-line">> ${fakeLogs[logIndex]}</div>`;
                         terminal.scrollTop = terminal.scrollHeight;
@@ -569,19 +566,16 @@ document.getElementById('deployForm').addEventListener('submit', async (e) => {
                     const seconds = timeLeft % 60;
                     document.getElementById('countdownTimer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-                    // When Timer Finishes
                     if (timeLeft <= 0) {
                         clearInterval(countdown);
                         
                         document.getElementById('statusText').innerText = "Deployment Successful";
                         document.getElementById('statusDot').classList.remove('animate-pulse');
                         
-                        // Hide Terminal & Spinner, Show Warning
                         document.getElementById('terminal-container').classList.add('hidden');
                         document.getElementById('loadingSpinner').classList.add('hidden');
                         document.getElementById('timerContainer').innerHTML = `<span class="text-red-400 font-bold flex items-center gap-2">⚠️ Link will be permanently lost upon page refresh. Copy it now.</span>`;
 
-                        // Reveal Final Links
                         const actions = document.getElementById('linkActions');
                         actions.classList.remove('hidden');
                         actions.classList.add('flex', 'animate-[fadeIn_0.5s_ease-out]');
