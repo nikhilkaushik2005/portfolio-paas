@@ -64,10 +64,11 @@
                     <h4 class="text-xl font-bold text-white mb-2">{{ project.title }}</h4>
                     <p class="text-sm text-slate-400 mb-6 flex-grow break-words">{{ project.desc }}</p>
                     
-                    {% if project.images and project.images|length > 0 %}
+                    {% if project.images and project.images|length > 0 and project.images[0] != "" %}
                     <div class="mb-6 flex gap-3 overflow-x-auto snap-x hide-scrollbar pb-2">
                         {% for image in project.images %}
-                        <div class="h-32 w-48 rounded-xl bg-slate-900 border border-slate-700/50 shrink-0 snap-start overflow-hidden hover:border-cyan-500 transition-colors shadow-lg cursor-pointer" onclick="openLightbox('{{ image }}')">
+                        <div class="h-32 w-48 rounded-xl bg-slate-900 border border-slate-700/50 shrink-0 snap-start overflow-hidden hover:border-cyan-500 transition-colors shadow-lg cursor-pointer" 
+                             onclick="openLightbox([{% for img in project.images %}'{{ img }}'{% if not loop.last %},{% endif %}{% endfor %}], {{ loop.index0 }})">
                             <img src="{{ image }}" alt="Project Screenshot" class="w-full h-full object-cover opacity-80 hover:opacity-100 hover:scale-105 transition-all duration-300">
                         </div>
                         {% endfor %}
@@ -122,9 +123,38 @@
 
     </main>
 
-    <div id="lightbox" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 cursor-zoom-out" onclick="closeLightbox()">
-        <button class="absolute top-6 right-6 text-slate-400 hover:text-cyan-400 text-4xl transition-colors cursor-pointer" onclick="closeLightbox()">&times;</button>
-        <img id="lightbox-img" src="" class="max-w-[90vw] max-h-[90vh] object-contain rounded-xl shadow-[0_0_50px_rgba(34,211,238,0.15)] transform scale-95 transition-transform duration-300 cursor-default" onclick="event.stopPropagation()">
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-slate-800/50 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] text-2xl transition-all cursor-pointer z-50">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="relative w-full max-w-6xl flex items-center justify-between px-4 md:px-12 z-40" id="lightbox-bounds">
+            
+            <button id="btn-prev" onclick="changeImage(-1, event)" class="hidden md:flex w-14 h-14 items-center justify-center rounded-full bg-slate-800/50 border border-slate-700 text-cyan-500 hover:bg-cyan-950 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] text-xl transition-all z-50 shrink-0">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="relative flex-grow flex justify-center px-4" onclick="event.stopPropagation()">
+                <img id="lightbox-img" src="" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-[0_0_50px_rgba(34,211,238,0.15)] transform scale-95 transition-all duration-300" alt="Gallery View">
+            </div>
+
+            <button id="btn-next" onclick="changeImage(1, event)" class="hidden md:flex w-14 h-14 items-center justify-center rounded-full bg-slate-800/50 border border-slate-700 text-cyan-500 hover:bg-cyan-950 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] text-xl transition-all z-50 shrink-0">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="absolute bottom-8 flex flex-col items-center gap-4 w-full px-6 z-50">
+            <div class="flex md:hidden gap-6">
+                <button id="btn-prev-mobile" onclick="changeImage(-1, event)" class="w-12 h-12 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-600 text-cyan-400 hover:bg-cyan-900 transition-colors hidden"><i class="fa-solid fa-chevron-left"></i></button>
+                <button id="btn-next-mobile" onclick="changeImage(1, event)" class="w-12 h-12 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-600 text-cyan-400 hover:bg-cyan-900 transition-colors hidden"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            
+            <div id="lightbox-counter" class="px-5 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-900 text-cyan-400 font-mono text-sm shadow-[0_0_15px_rgba(34,211,238,0.2)] hidden backdrop-blur-md">
+                1 / 3
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -140,45 +170,108 @@
             container.appendChild(badge);
         });
 
-        // --- Lightbox Logic ---
+        // --- CYBER GALLERY LOGIC ---
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnPrevMobile = document.getElementById('btn-prev-mobile');
+        const btnNextMobile = document.getElementById('btn-next-mobile');
+        const counter = document.getElementById('lightbox-counter');
+        
+        let currentGallery = [];
+        let currentIndex = 0;
 
-        function openLightbox(imageSrc) {
-            lightboxImg.src = imageSrc;
-            lightbox.classList.remove('hidden');
+        function openLightbox(imagesArray, startIndex) {
+            currentGallery = imagesArray;
+            currentIndex = startIndex;
             
-            // Force a browser reflow to ensure the transition plays smoothly
+            updateLightboxView();
+            
+            lightbox.classList.remove('hidden');
+            lightbox.classList.add('flex');
+            
+            // Force reflow for transitions
             void lightbox.offsetWidth;
             
-            lightbox.classList.remove('opacity-0');
-            lightboxImg.classList.remove('scale-95');
-            lightboxImg.classList.add('scale-100');
+            lightbox.classList.replace('opacity-0', 'opacity-100');
             
-            // Prevent body scrolling while modal is open
+            // Pop-in effect
+            setTimeout(() => {
+                lightboxImg.classList.replace('scale-95', 'scale-100');
+            }, 50);
+
             document.body.style.overflow = 'hidden';
         }
 
         function closeLightbox() {
-            lightbox.classList.add('opacity-0');
-            lightboxImg.classList.remove('scale-100');
-            lightboxImg.classList.add('scale-95');
+            lightbox.classList.replace('opacity-100', 'opacity-0');
+            lightboxImg.classList.replace('scale-100', 'scale-95');
             
-            // Restore body scrolling
-            document.body.style.overflow = 'auto';
-            
-            // Wait for transition to finish before hiding the element
             setTimeout(() => {
                 lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
                 lightboxImg.src = '';
+                document.body.style.overflow = 'auto';
             }, 300);
         }
 
-        // Close lightbox with the Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape" && !lightbox.classList.contains('hidden')) {
+        function changeImage(direction, event) {
+            if (event) event.stopPropagation(); 
+            currentIndex += direction;
+            
+            if (currentIndex < 0) currentIndex = currentGallery.length - 1;
+            if (currentIndex >= currentGallery.length) currentIndex = 0;
+            
+            // Quick scale pop for feedback
+            lightboxImg.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                updateLightboxView();
+                lightboxImg.classList.replace('scale-95', 'scale-100');
+            }, 150);
+        }
+
+        function updateLightboxView() {
+            lightboxImg.src = currentGallery[currentIndex];
+            
+            if (currentGallery.length > 1) {
+                btnPrev.classList.remove('hidden');
+                btnPrev.classList.add('md:flex');
+                btnNext.classList.remove('hidden');
+                btnNext.classList.add('md:flex');
+                
+                btnPrevMobile.classList.remove('hidden');
+                btnNextMobile.classList.remove('hidden');
+                
+                counter.classList.remove('hidden');
+                counter.innerText = `${currentIndex + 1} / ${currentGallery.length}`;
+            } else {
+                btnPrev.classList.add('hidden');
+                btnPrev.classList.remove('md:flex');
+                btnNext.classList.add('hidden');
+                btnNext.classList.remove('md:flex');
+                
+                btnPrevMobile.classList.add('hidden');
+                btnNextMobile.classList.add('hidden');
+                
+                counter.classList.add('hidden');
+            }
+        }
+
+        // Background click to close
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target.id === 'lightbox-bounds') {
                 closeLightbox();
             }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (lightbox.classList.contains('hidden')) return;
+            
+            if (event.key === "Escape") closeLightbox();
+            if (event.key === "ArrowLeft") changeImage(-1);
+            if (event.key === "ArrowRight") changeImage(1);
         });
     </script>
 </body>
