@@ -303,13 +303,13 @@
     </div>
 
     <script>
-        // --- DYNAMIC TEXTAREA AUTO-RESIZE ---
+        // --- DYNAMIC TEXTAREA AUTO-RESIZE
         function autoResize(el) {
             el.style.height = 'auto'; 
             el.style.height = (el.scrollHeight) + 'px'; 
         }
 
-       // --- ADVANCED IMAGE UPLOAD LOGIC (APPEND MODE) ---
+       // --- IMAGE UPLOAD LOGIC (APPEND MODE)
         function handleImageUpload(input) {
             const previewContainer = input.closest('.md\\:col-span-12').querySelector('.image-preview-container');
             
@@ -385,7 +385,7 @@
             });
         }
 
-        // --- MAGNETIC BUTTON LOGIC ---
+        // --- MAGNETIC BUTTON LOGIC
         const magnetBtn = document.getElementById('deployBtn');
         magnetBtn.addEventListener('mousemove', (e) => {
             const rect = magnetBtn.getBoundingClientRect();
@@ -397,14 +397,14 @@
             magnetBtn.style.transform = `translate(0px, 0px)`;
         });
 
-        // --- VISUAL TEMPLATE SELECTOR ---
+        // --- VISUAL TEMPLATE SELECTOR
         function selectTemplate(id, element) {
             document.getElementById('templateChoice').value = id;
             document.querySelectorAll('.template-card').forEach(card => card.classList.remove('active'));
             element.classList.add('active');
         }
 
-        // --- DYNAMIC FORM LOGIC ---
+        // --- DYNAMIC FORM LOGIC
         function addProject() {
             const container = document.getElementById('projects-container');
             const html = `
@@ -461,7 +461,7 @@
             document.getElementById('resultBanner').classList.add('translate-y-full');
         }
 
-        // --- FAKE TERMINAL LOGS ARRAY ---
+        // --- FAKE TERMINAL LOGS ARRAY
         const fakeLogs = [
             "[AWS] Authenticating IAM Roles via STS...",
             "[S3] Provisioning isolated bucket environment...",
